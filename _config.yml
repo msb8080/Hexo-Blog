@@ -3,12 +3,12 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: 闵帅博的个人博客
-subtitle: ''
-description: ''
+title: AI Composer 技术猿
+subtitle: 'AI 后端学习、面试总结、投资理财与副业研究'
+description: '记录 AI 后端实践、学习与面试总结，持续复盘投资理财和副业探索。'
 keywords:
 author: minshuaibo
-language: en
+language: zh-CN
 timezone: ''
 
 # URL

@@ -1,0 +1,48 @@
+# Fluid Theme Override Configuration
+# Docs: https://hexo.fluid-dev.com/docs/guide/
+
+navbar:
+  blog_title: "AI Composer 技术猿"
+  menu:
+    - { key: "home", link: "/", icon: "iconfont icon-home-fill", name: "首页" }
+    - { key: "archive", link: "/archives/", icon: "iconfont icon-archive-fill", name: "归档" }
+    - { key: "category", link: "/categories/", icon: "iconfont icon-category-fill", name: "分类" }
+    - { key: "tag", link: "/tags/", icon: "iconfont icon-tags-fill", name: "标签" }
+    - { key: "about", link: "/about/", icon: "iconfont icon-user-fill", name: "关于" }
+    - { key: "guide", link: "/2026/04/30/我的博客搭建复盘-ai-composer技术猿的hexo实践与长期写作规划-2026-04-30/", icon: "iconfont icon-code-fill", name: "搭建复盘" }
+
+index:
+  banner_img: /img/default.png
+  banner_img_height: 92
+  banner_mask_alpha: 0.45
+  slogan:
+    enable: true
+    text:
+      - "代码会报错，计划会偏航，人会成长。"
+      - "面试总结、投资理财与副业研究。"
+      - "把复杂问题拆成可执行流程。"
+      - "今天修系统，明天修自己。"
+      - "长期主义不是慢，是持续迭代。"
+  auto_excerpt:
+    enable: true
+  post_meta:
+    date: true
+    category: true
+    tag: true
+
+post:
+  default_index_img: /img/default.png
+
+color:
+  navbar_bg_color: "#0f2740"
+  navbar_bg_color_dark: "#152a42"
+  link_hover_color: "#0ea5e9"
+  button_hover_bg_color: "#e6f4ff"
+
+fun_features:
+  typing:
+    enable: true
+    typeSpeed: 45
+    cursorChar: "|"
+    loop: true
+    scope: ["home"]
