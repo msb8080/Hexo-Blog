@@ -47,6 +47,6 @@ npm run clean
 npm run build
 
 echo "[INFO] Deploy site"
-npm run deploy
+GIT_SSH_COMMAND='ssh -i /Users/shuaibomin/.ssh/id_github -o UserKnownHostsFile=/Users/shuaibomin/.ssh/known_hosts -o StrictHostKeyChecking=yes' npm run deploy
 
 echo "[INFO] Release completed"
