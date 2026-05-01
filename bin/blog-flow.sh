@@ -42,20 +42,54 @@ check_fs_permissions() {
   fi
 }
 
+collect_front_matter_targets() {
+  local changed tracked_untracked
+
+  changed="$(git diff --name-only -- 'source/_posts/*.md' 'source/_drafts/*.md' || true)"
+  tracked_untracked="$(git ls-files --others --exclude-standard -- 'source/_posts/*.md' 'source/_drafts/*.md' || true)"
+
+  {
+    printf '%s\n' "$changed"
+    printf '%s\n' "$tracked_untracked"
+  } | awk 'NF' | sort -u
+}
+
+check_one_front_matter() {
+  local file="$1"
+
+  rg -q '^title:' "$file" || { echo "[ERROR] Missing title: $file"; exit 1; }
+  rg -q '^date:' "$file" || { echo "[ERROR] Missing date: $file"; exit 1; }
+  rg -q '^updated:' "$file" || { echo "[ERROR] Missing updated: $file"; exit 1; }
+  rg -q '^tags:' "$file" || { echo "[ERROR] Missing tags: $file"; exit 1; }
+  rg -q '^categories:' "$file" || { echo "[ERROR] Missing categories: $file"; exit 1; }
+}
+
 check_front_matter() {
-  local latest_post
-  latest_post=$(ls -t source/_posts/*.md 2>/dev/null | head -n 1 || true)
-  if [[ -z "${latest_post}" ]]; then
-    echo "[WARN] No posts found under source/_posts"
-    return 0
+  local targets found=0
+
+  targets="$(collect_front_matter_targets)"
+
+  if [[ -z "$targets" ]]; then
+    echo "[INFO] No changed posts/drafts found, checking all posts in source/_posts"
+    for file in source/_posts/*.md; do
+      [[ -e "$file" ]] || continue
+      found=1
+      echo "[INFO] Checking front matter: $file"
+      check_one_front_matter "$file"
+    done
+  else
+    while IFS= read -r file; do
+      [[ -n "$file" ]] || continue
+      [[ -f "$file" ]] || continue
+      found=1
+      echo "[INFO] Checking front matter: $file"
+      check_one_front_matter "$file"
+    done <<< "$targets"
   fi
 
-  echo "[INFO] Checking front matter in latest post: ${latest_post}"
-  rg -q '^title:' "$latest_post" || { echo "[ERROR] Missing title"; exit 1; }
-  rg -q '^date:' "$latest_post" || { echo "[ERROR] Missing date"; exit 1; }
-  rg -q '^updated:' "$latest_post" || { echo "[ERROR] Missing updated"; exit 1; }
-  rg -q '^tags:' "$latest_post" || { echo "[ERROR] Missing tags"; exit 1; }
-  rg -q '^categories:' "$latest_post" || { echo "[ERROR] Missing categories"; exit 1; }
+  if [[ "$found" -eq 0 ]]; then
+    echo "[WARN] No markdown files found under source/_posts or source/_drafts"
+  fi
 }
 
 run_check() {
