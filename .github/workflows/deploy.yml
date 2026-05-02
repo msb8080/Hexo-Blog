@@ -1,0 +1,42 @@
+name: Build & Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Hexo-Blog
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Clean
+        run: npm run clean
+
+      - name: Build Hexo
+        run: npm run build
+
+      - name: Deploy to msb8080.github.io/blog/
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.DEPLOY_TOKEN }}
+          external_repository: msb8080/msb8080.github.io
+          publish_dir: ./public
+          destination_dir: blog
+          keep_files: true
+          commit_message: 'deploy: 更新博客 ${{ github.sha }}'
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
