@@ -7,30 +7,34 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.DEPLOY_TOKEN }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
-      - name: Install
-        run: npm ci
-
-      - name: Build
-        run: npm run build
+      - name: Install & Build
+        run: |
+          npm ci
+          npm run build
 
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.DEPLOY_TOKEN }}
         with:
-          personal_token: ${{ secrets.DEPLOY_TOKEN }}
-          external_repository: msb8080/msb8080.github.io
-          publish_dir: ./public
-          destination_dir: blog
-          keep_files: true
+          source-directory: public
+          destination-github-username: msb8080
+          destination-repository-name: msb8080.github.io
+          target-branch: master
+          target-directory: blog
