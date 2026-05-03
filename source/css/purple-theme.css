@@ -1,0 +1,635 @@
+/* =========================================
+ * Hexo-Blog Purple Theme
+ * 适配 minshuaibo-person 3D Bento 设计语言
+ * ========================================= */
+
+/* ----- Google Fonts 加载 ----- */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@500;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300,1&display=swap');
+
+/* ----- CSS 变量 ----- */
+:root {
+    --purple-bg: #312052;
+    --purple-deep: #2b1b54;
+    --purple-primary: #7e5adc;
+    --purple-neon: #6d28d9;
+    --purple-light: #a894df;
+    --purple-50: #fcfaff;
+    --purple-100: #f8f5fc;
+    --purple-200: #e5e0f5;
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.15);
+}
+
+/* ----- 全局字体覆盖 ----- */
+html, html[data-user-color-scheme="light"], html[data-user-color-scheme="dark"] {
+    background-color: var(--purple-bg) !important;
+}
+
+body,
+html {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    background-color: var(--purple-bg) !important;
+    color: #e5e0f5 !important;
+}
+
+/* Fluid 主题背景色覆盖 */
+.blog-wrapper,
+#web_bg,
+body::before {
+    background-color: var(--purple-bg) !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.navbar-brand,
+.post-title a,
+.card-title,
+.category-list-link,
+.tag-list-link {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 700 !important;
+}
+
+code, pre, .code,
+.highlight,
+.post-meta,
+.category-list-count,
+.tag-list-count {
+    font-family: 'Space Mono', monospace !important;
+}
+
+/* ----- 深紫色背景系统 ----- */
+
+/* 背景装饰层 */
+.blog-wrapper::before,
+.blog-wrapper::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.blog-wrapper::before {
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(126, 90, 220, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(109, 40, 217, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(43, 27, 84, 0.3) 0%, transparent 60%);
+}
+
+.blog-wrapper::after {
+    background-image: radial-gradient(rgba(126, 90, 220, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+/* ----- 导航栏：浮动玻璃药丸 ----- */
+.navbar {
+    background: rgba(43, 27, 84, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(126, 90, 220, 0.2) !important;
+    box-shadow: 0 10px 40px rgba(126, 90, 220, 0.15) !important;
+    padding: 0.5rem 0 !important;
+}
+
+.navbar-brand,
+.navbar-brand .brand-text {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 900 !important;
+    color: #fff !important;
+    letter-spacing: 0.05em;
+}
+
+.navbar-brand .brand-dot {
+    color: var(--purple-primary) !important;
+}
+
+.nav-link,
+.navbar-nav .nav-link {
+    font-family: 'Space Mono', monospace !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    transition: all 0.3s ease !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 9999px !important;
+}
+
+.nav-link:hover,
+.nav-link:focus,
+.navbar-nav .nav-link:hover {
+    color: #fff !important;
+    background: rgba(126, 90, 220, 0.3) !important;
+}
+
+.nav-link.active {
+    color: #fff !important;
+    background: var(--purple-primary) !important;
+}
+
+/* 暗色模式切换按钮 */
+.dark-mode-switch {
+    color: var(--purple-light) !important;
+}
+
+/* ----- Banner 头部区域 ----- */
+#board {
+    background: linear-gradient(135deg, rgba(43, 27, 84, 0.9) 0%, rgba(109, 40, 217, 0.4) 100%) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.banner-title,
+.index-header .h2 {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 900 !important;
+    color: #fff !important;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.banner-subtitle {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    color: var(--purple-light) !important;
+}
+
+/* 打字机光标 */
+.typed-cursor {
+    color: var(--purple-primary) !important;
+}
+
+/* ----- 首页文章卡片：3D Bento 感觉 ----- */
+#board .row .col-lg-4,
+#board .row .col-lg-8,
+.post-preview-card {
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.post-preview-card {
+    background: rgba(255, 255, 255, 0.06) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(126, 90, 220, 0.15) !important;
+    border-radius: 1.25rem !important;
+    overflow: hidden !important;
+    box-shadow:
+        0 4px 15px rgba(126, 90, 220, 0.1),
+        0 0 0 1px rgba(126, 90, 220, 0.05) !important;
+    position: relative !important;
+}
+
+.post-preview-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        135deg,
+        rgba(126, 90, 220, 0.08) 0%,
+        transparent 50%,
+        rgba(109, 40, 217, 0.05) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.post-preview-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow:
+        0 30px 60px rgba(126, 90, 220, 0.25),
+        0 0 0 1px rgba(126, 90, 220, 0.3) !important;
+    border-color: rgba(126, 90, 220, 0.35) !important;
+}
+
+.post-preview-card:hover::before {
+    opacity: 1;
+}
+
+/* 文章封面图 */
+.post-preview-card .index-img {
+    border-radius: 0 !important;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.post-preview-card:hover .index-img {
+    transform: scale(1.08) !important;
+}
+
+/* 文章标题 */
+.post-preview-card .card-title a {
+    font-family: 'Space Grotesk', sans-serif !important;
+    color: #fff !important;
+    transition: color 0.3s ease !important;
+}
+
+.post-preview-card:hover .card-title a {
+    color: var(--purple-light) !important;
+}
+
+/* 文章摘要 */
+.post-preview-card .card-text {
+    color: rgba(229, 224, 245, 0.7) !important;
+}
+
+/* 文章元信息 */
+.post-preview-card .post-meta {
+    color: rgba(168, 148, 223, 0.7) !important;
+    font-size: 0.8rem !important;
+}
+
+/* 分类标签 */
+.post-preview-card .badge,
+.post-preview-card .category-badge {
+    background: rgba(126, 90, 220, 0.2) !important;
+    color: var(--purple-light) !important;
+    border: 1px solid rgba(126, 90, 220, 0.3) !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: 0.7rem !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 9999px !important;
+}
+
+/* 首页按钮 */
+#board .btn-primary {
+    background: var(--purple-primary) !important;
+    border-color: var(--purple-primary) !important;
+    font-family: 'Space Mono', monospace !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em;
+    border-radius: 9999px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(126, 90, 220, 0.3) !important;
+}
+
+#board .btn-primary:hover {
+    background: var(--purple-neon) !important;
+    border-color: var(--purple-neon) !important;
+    box-shadow: 0 8px 25px rgba(109, 40, 217, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* ----- 文章详情页 ----- */
+.post-content,
+.post-block {
+    background: rgba(255, 255, 255, 0.04) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(126, 90, 220, 0.1) !important;
+    border-radius: 1.5rem !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4 {
+    font-family: 'Space Grotesk', sans-serif !important;
+    color: #fff !important;
+}
+
+.post-content p,
+.post-content li {
+    color: rgba(229, 224, 245, 0.85) !important;
+    line-height: 1.8 !important;
+}
+
+.post-content a {
+    color: var(--purple-light) !important;
+    text-decoration-color: rgba(126, 90, 220, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.post-content a:hover {
+    color: #fff !important;
+    text-decoration-color: var(--purple-primary) !important;
+}
+
+/* 引用块 */
+.post-content blockquote {
+    background: rgba(126, 90, 220, 0.1) !important;
+    border-left: 4px solid var(--purple-primary) !important;
+    color: rgba(229, 224, 245, 0.8) !important;
+    border-radius: 0 0.75rem 0.75rem 0 !important;
+    padding: 1rem 1.5rem !important;
+}
+
+/* 代码块 */
+.post-content .highlight {
+    background: rgba(17, 24, 39, 0.8) !important;
+    border: 1px solid rgba(126, 90, 220, 0.2) !important;
+    border-radius: 0.75rem !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+.post-content .highlight pre {
+    background: transparent !important;
+}
+
+/* 代码复制按钮 */
+.highlight .copy-btn {
+    background: var(--purple-primary) !important;
+    color: #fff !important;
+    border-radius: 0.5rem !important;
+    opacity: 0.8 !important;
+    transition: opacity 0.3s ease !important;
+}
+
+.highlight .copy-btn:hover {
+    opacity: 1 !important;
+}
+
+/* 内联代码 */
+.post-content code:not(.highlight code) {
+    background: rgba(126, 90, 220, 0.15) !important;
+    color: var(--purple-light) !important;
+    padding: 0.15em 0.4em !important;
+    border-radius: 0.375rem !important;
+    font-size: 0.9em !important;
+}
+
+/* 表格 */
+.post-content table {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(126, 90, 220, 0.15) !important;
+    border-radius: 0.75rem !important;
+    overflow: hidden !important;
+}
+
+.post-content table th {
+    background: rgba(126, 90, 220, 0.15) !important;
+    color: #fff !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+}
+
+.post-content table td {
+    border-color: rgba(126, 90, 220, 0.1) !important;
+    color: rgba(229, 224, 245, 0.8) !important;
+}
+
+/* ----- 侧边栏 ----- */
+.card,
+.sidebar-block {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(126, 90, 220, 0.12) !important;
+    border-radius: 1.25rem !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+}
+
+.card-header,
+.sidebar-block-title {
+    font-family: 'Space Grotesk', sans-serif !important;
+    color: #fff !important;
+    border-bottom-color: rgba(126, 90, 220, 0.15) !important;
+}
+
+/* 分类列表 */
+.category-list-link,
+.tag-list-link {
+    color: rgba(229, 224, 245, 0.75) !important;
+    transition: all 0.3s ease !important;
+}
+
+.category-list-link:hover,
+.tag-list-link:hover {
+    color: var(--purple-light) !important;
+    padding-left: 0.5rem !important;
+}
+
+.category-list-count,
+.tag-list-count {
+    background: rgba(126, 90, 220, 0.15) !important;
+    color: var(--purple-light) !important;
+    border-radius: 9999px !important;
+    padding: 0.15rem 0.6rem !important;
+    font-size: 0.75rem !important;
+}
+
+/* 标签云 */
+.tag-cloud a {
+    background: rgba(126, 90, 220, 0.1) !important;
+    color: var(--purple-light) !important;
+    border: 1px solid rgba(126, 90, 220, 0.2) !important;
+    border-radius: 9999px !important;
+    padding: 0.25rem 0.75rem !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: 0.75rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.tag-cloud a:hover {
+    background: var(--purple-primary) !important;
+    color: #fff !important;
+    border-color: var(--purple-primary) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* ----- 归档/分类/标签页面 ----- */
+.page-header-title,
+.archive-title,
+.category-title,
+.tag-title {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 900 !important;
+    color: #fff !important;
+}
+
+/* 归档时间线 */
+.archive-timeline .archive-year {
+    font-family: 'Space Grotesk', sans-serif !important;
+    color: var(--purple-light) !important;
+}
+
+.archive-timeline .archive-post-title a {
+    color: rgba(229, 224, 245, 0.85) !important;
+    transition: color 0.3s ease !important;
+}
+
+.archive-timeline .archive-post-title a:hover {
+    color: var(--purple-primary) !important;
+}
+
+/* ----- 关于页面 ----- */
+.about-avatar {
+    border: 3px solid var(--purple-primary) !important;
+    box-shadow: 0 0 30px rgba(126, 90, 220, 0.3) !important;
+}
+
+.about-social-link {
+    background: rgba(126, 90, 220, 0.15) !important;
+    color: var(--purple-light) !important;
+    border: 1px solid rgba(126, 90, 220, 0.2) !important;
+    border-radius: 50% !important;
+    transition: all 0.3s ease !important;
+}
+
+.about-social-link:hover {
+    background: var(--purple-primary) !important;
+    color: #fff !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 20px rgba(126, 90, 220, 0.3) !important;
+}
+
+/* ----- 页脚 ----- */
+#footer {
+    background: rgba(17, 10, 33, 0.8) !important;
+    border-top: 1px solid rgba(126, 90, 220, 0.15) !important;
+    color: rgba(229, 224, 245, 0.5) !important;
+}
+
+#footer a {
+    color: var(--purple-light) !important;
+    transition: color 0.3s ease !important;
+}
+
+#footer a:hover {
+    color: #fff !important;
+}
+
+/* ----- 回到顶部按钮 ----- */
+.scroll-top-btn,
+.go-up-btn {
+    background: var(--purple-primary) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 50% !important;
+    box-shadow: 0 4px 15px rgba(126, 90, 220, 0.4) !important;
+    transition: all 0.3s ease !important;
+}
+
+.scroll-top-btn:hover,
+.go-up-btn:hover {
+    background: var(--purple-neon) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 25px rgba(109, 40, 217, 0.5) !important;
+}
+
+/* ----- 加载进度条 ----- */
+#nprogress .bar {
+    background: linear-gradient(90deg, var(--purple-primary), var(--purple-neon)) !important;
+    height: 3px !important;
+}
+
+#nprogress .peg {
+    box-shadow: 0 0 10px var(--purple-primary), 0 0 5px var(--purple-primary) !important;
+}
+
+#nprogress .spinner-icon {
+    border-top-color: var(--purple-primary) !important;
+    border-left-color: var(--purple-primary) !important;
+}
+
+/* ----- 搜索弹窗 ----- */
+.search-dialog,
+.local-search-dialog {
+    background: rgba(43, 27, 84, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(126, 90, 220, 0.2) !important;
+    border-radius: 1.5rem !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+}
+
+.search-dialog input,
+.local-search-dialog input {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(126, 90, 220, 0.2) !important;
+    color: #fff !important;
+    border-radius: 9999px !important;
+}
+
+.search-dialog input::placeholder {
+    color: rgba(168, 148, 223, 0.5) !important;
+}
+
+.search-result-item {
+    color: rgba(229, 224, 245, 0.8) !important;
+    border-bottom-color: rgba(126, 90, 220, 0.1) !important;
+}
+
+.search-result-item:hover {
+    background: rgba(126, 90, 220, 0.1) !important;
+}
+
+.search-keyword {
+    color: var(--purple-primary) !important;
+    font-weight: 700 !important;
+}
+
+/* ----- GSAP 入场动画 ----- */
+.gsap-reveal {
+    opacity: 0;
+    transform: translateY(40px);
+}
+
+.gsap-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* 卡片交错入场 */
+.post-preview-card:nth-child(1) .gsap-reveal { transition-delay: 0.05s; }
+.post-preview-card:nth-child(2) .gsap-reveal { transition-delay: 0.1s; }
+.post-preview-card:nth-child(3) .gsap-reveal { transition-delay: 0.15s; }
+.post-preview-card:nth-child(4) .gsap-reveal { transition-delay: 0.2s; }
+.post-preview-card:nth-child(5) .gsap-reveal { transition-delay: 0.25s; }
+.post-preview-card:nth-child(6) .gsap-reveal { transition-delay: 0.3s; }
+
+/* ----- 滚动条美化 ----- */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--purple-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(126, 90, 220, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(126, 90, 220, 0.5);
+}
+
+/* ----- 选中文本 ----- */
+::selection {
+    background: rgba(126, 90, 220, 0.4) !important;
+    color: #fff !important;
+}
+
+/* ----- 暗色模式适配覆盖 ----- */
+[data-user-color-scheme="dark"] body,
+body[data-theme="dark"] {
+    background-color: var(--purple-bg) !important;
+}
+
+/* ----- 响应式 ----- */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.25rem 0 !important;
+    }
+
+    .post-preview-card {
+        border-radius: 1rem !important;
+    }
+
+    .post-content,
+    .post-block {
+        border-radius: 1rem !important;
+        padding: 1.25rem !important;
+    }
+}
+
+/* ----- Material Symbols 图标类 ----- */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+}
