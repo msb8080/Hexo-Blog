@@ -1,19 +1,19 @@
 /* =========================================
- * Hexo-Blog Purple Animations
- * GSAP Scroll Reveal + 3D Card Tilt
+ * Hexo-Blog Purple Animations v2
+ * 复刻 lishenghua.com 交互动效
  * ========================================= */
 
 (function () {
     'use strict';
 
-    /* ----- Intersection Observer for Scroll Reveal ----- */
+    /* ----- IntersectionObserver 滚动入场 ----- */
     function initScrollReveal() {
-        var cards = document.querySelectorAll('.post-preview-card, .card, .sidebar-block, .post-block, .page-header');
-        if (!cards.length) return;
+        var targets = document.querySelectorAll('.index-card, .post-block, .card, .widget, .post-content, .page-content');
+        if (!targets.length) return;
 
-        cards.forEach(function (el, i) {
+        targets.forEach(function (el, i) {
             el.classList.add('gsap-reveal');
-            el.style.transitionDelay = (i * 0.06) + 's';
+            el.style.transitionDelay = (i * 0.07) + 's';
         });
 
         var observer = new IntersectionObserver(function (entries) {
@@ -24,68 +24,76 @@
                 }
             });
         }, {
-            threshold: 0.1,
-            rootMargin: '0px 0px -40px 0px'
+            threshold: 0.08,
+            rootMargin: '0px 0px -50px 0px'
         });
 
-        cards.forEach(function (el) {
-            observer.observe(el);
-        });
+        targets.forEach(function (el) { observer.observe(el); });
     }
 
-    /* ----- Banner 标题淡入动画 ----- */
+    /* ----- Banner 标题淡入 ----- */
     function initBannerAnimation() {
-        var banner = document.querySelector('.index-header, #board .h2, .banner-title');
+        var banner = document.querySelector('.index-header');
         if (!banner) return;
-
         banner.style.opacity = '0';
-        banner.style.transform = 'translateY(30px)';
-        banner.style.transition = 'opacity 1s cubic-bezier(0.23,1,0.32,1), transform 1s cubic-bezier(0.23,1,0.32,1)';
-
+        banner.style.transform = 'translateY(25px)';
+        banner.style.transition = 'opacity 0.9s cubic-bezier(0.23,1,0.32,1), transform 0.9s cubic-bezier(0.23,1,0.32,1)';
         setTimeout(function () {
             banner.style.opacity = '1';
             banner.style.transform = 'translateY(0)';
-        }, 200);
+        }, 150);
     }
 
     /* ----- 导航栏滚动效果 ----- */
     function initNavbarScroll() {
         var navbar = document.querySelector('.navbar');
         if (!navbar) return;
-
-        var lastScroll = 0;
         window.addEventListener('scroll', function () {
-            var currentScroll = window.pageYOffset;
-            if (currentScroll > 100) {
-                navbar.style.boxShadow = '0 10px 40px rgba(126,90,220,0.2)';
-                navbar.style.backdropFilter = 'blur(25px)';
+            if (window.pageYOffset > 80) {
+                navbar.classList.add('scrolled');
             } else {
-                navbar.style.boxShadow = '0 10px 40px rgba(126,90,220,0.15)';
-                navbar.style.backdropFilter = 'blur(20px)';
+                navbar.classList.remove('scrolled');
             }
-            lastScroll = currentScroll;
         }, { passive: true });
     }
 
-    /* ----- 链接悬停光标跟随效果 ----- */
-    function initLinkGlow() {
-        document.querySelectorAll('.post-preview-card').forEach(function (card) {
+    /* ----- 卡片光晕跟随 ----- */
+    function initCardGlow() {
+        var style = document.createElement('style');
+        style.textContent = [
+            '.index-card { position: relative; overflow: hidden; }',
+            '.index-card .card-glow {',
+            '  position: absolute;',
+            '  width: 250px; height: 250px;',
+            '  background: radial-gradient(circle, rgba(126,90,220,0.18) 0%, transparent 70%);',
+            '  border-radius: 50%;',
+            '  transform: translate(-50%, -50%);',
+            '  pointer-events: none;',
+            '  z-index: 0;',
+            '  opacity: 0;',
+            '  transition: opacity 0.3s ease;',
+            '}',
+            '.index-card:hover .card-glow { opacity: 1; }'
+        ].join('\n');
+        document.head.appendChild(style);
+
+        document.querySelectorAll('.index-card').forEach(function (card) {
+            var glow = document.createElement('div');
+            glow.className = 'card-glow';
+            card.appendChild(glow);
+
             card.addEventListener('mousemove', function (e) {
                 var rect = card.getBoundingClientRect();
-                var x = e.clientX - rect.left;
-                var y = e.clientY - rect.top;
-                card.style.setProperty('--glow-x', x + 'px');
-                card.style.setProperty('--glow-y', y + 'px');
+                glow.style.left = (e.clientX - rect.left) + 'px';
+                glow.style.top = (e.clientY - rect.top) + 'px';
             });
         });
     }
 
-    /* ----- 返回顶部按钮增强 ----- */
+    /* ----- 返回顶部按钮 ----- */
     function initScrollTop() {
-        var btn = document.querySelector('.scroll-top-btn, .go-up-btn, [class*="back-to-top"]');
+        var btn = document.querySelector('#go-up, .scroll-top-btn, .go-up-btn, [class*="back-to-top"]');
         if (!btn) return;
-
-        btn.classList.add('scroll-top-btn');
         window.addEventListener('scroll', function () {
             if (window.pageYOffset > 300) {
                 btn.style.opacity = '1';
@@ -95,16 +103,15 @@
                 btn.style.pointerEvents = 'none';
             }
         }, { passive: true });
-
         btn.style.transition = 'opacity 0.3s ease, transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease';
         btn.style.opacity = '0';
         btn.style.pointerEvents = 'none';
     }
 
-    /* ----- 平滑滚动 ----- */
+    /* ----- 平滑锚点滚动 ----- */
     function initSmoothScroll() {
-        document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
-            anchor.addEventListener('click', function (e) {
+        document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+            a.addEventListener('click', function (e) {
                 var target = document.querySelector(this.getAttribute('href'));
                 if (target) {
                     e.preventDefault();
@@ -114,50 +121,23 @@
         });
     }
 
-    /* ----- 卡片光晕跟随 (CSS variable) ----- */
-    var cardStyle = document.createElement('style');
-    cardStyle.textContent = [
-        '.post-preview-card {',
-        '  position: relative;',
-        '  overflow: hidden;',
-        '}',
-        '.post-preview-card::after {',
-        '  content: "";',
-        '  position: absolute;',
-        '  top: var(--glow-y, 50%);',
-        '  left: var(--glow-x, 50%);',
-        '  width: 200px;',
-        '  height: 200px;',
-        '  background: radial-gradient(circle, rgba(126,90,220,0.15) 0%, transparent 70%);',
-        '  transform: translate(-50%, -50%);',
-        '  pointer-events: none;',
-        '  z-index: 0;',
-        '  opacity: 0;',
-        '  transition: opacity 0.3s ease;',
-        '}',
-        '.post-preview-card:hover::after {',
-        '  opacity: 1;',
-        '}'
-    ].join('\n');
-    document.head.appendChild(cardStyle);
+    /* ========================================= */
+    function init() {
+        initScrollReveal();
+        initBannerAnimation();
+        initNavbarScroll();
+        initCardGlow();
+        initScrollTop();
+        initSmoothScroll();
+    }
 
-    /* ----- 初始化 ----- */
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
 
-    function init() {
-        initScrollReveal();
-        initBannerAnimation();
-        initNavbarScroll();
-        initLinkGlow();
-        initScrollTop();
-        initSmoothScroll();
-    }
-
-    /* Hexo PJAX 兼容 */
+    /* PJAX 兼容 */
     if (typeof window.pjax !== 'undefined' || document.querySelector('[data-pjax]')) {
         document.addEventListener('pjax:complete', init);
     }
