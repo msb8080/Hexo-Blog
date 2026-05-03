@@ -173,10 +173,30 @@ code, pre, .code,
 }
 
 /* =========================================
- * Banner 头部区域
+ * Banner 区域：隐藏灯塔图片，纯渐变
  * ========================================= */
+div.banner,
+#board,
+.page-header {
+    background-image: none !important;
+    background: linear-gradient(135deg, rgba(43, 27, 84, 0.95) 0%, rgba(109, 40, 217, 0.5) 50%, rgba(126, 90, 220, 0.3) 100%) !important;
+    min-height: auto !important;
+}
+
+/* Banner 背景图层隐藏 */
+div.banner .banner-img,
+div.banner .full-bg-img,
+#board .banner-img,
+#board .index-banner,
+.page-header .banner-img {
+    display: none !important;
+}
+
+/* 首页 Banner 压缩为紧凑高度 */
 #board {
     margin-top: 5rem !important;
+    padding-top: 3rem !important;
+    padding-bottom: 1rem !important;
 }
 
 .index-header {
