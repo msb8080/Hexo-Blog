@@ -136,6 +136,7 @@
 
     /* ========================================= */
     function init() {
+        console.log('[GSAP] init called');
         initScrollReveal();
         initBannerAnimation();
         initNavbarScroll();
