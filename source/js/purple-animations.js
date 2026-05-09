@@ -8,9 +8,7 @@
 
     /* ----- IntersectionObserver 滚动入场 ----- */
     function initScrollReveal() {
-        console.log('[GSAP] initScrollReveal called');
         var targets = document.querySelectorAll('.index-card, .post-block, .card, .widget, .post-content, .page-content');
-        console.log('[GSAP] Found targets:', targets.length);
         if (!targets.length) return;
 
         targets.forEach(function (el, i) {
@@ -36,10 +34,8 @@
             var isInView = rect.top < window.innerHeight && rect.bottom > 0;
             if (isInView) {
                 el.classList.add('is-visible');
-                console.log('[GSAP] Element already in view, added is-visible');
             } else {
                 observer.observe(el);
-                console.log('[GSAP] Observing element');
             }
         });
     }
@@ -136,7 +132,6 @@
 
     /* ========================================= */
     function init() {
-        console.log('[GSAP] init called');
         initScrollReveal();
         initBannerAnimation();
         initNavbarScroll();
