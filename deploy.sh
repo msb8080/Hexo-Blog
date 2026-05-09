@@ -9,6 +9,7 @@ SITE_DIR="$HOME/Desktop/ai-workspace/rainbow/msb8080.github.io"
 
 echo "🔨 构建 Hexo 博客..."
 cd "$BLOG_DIR"
+export PATH="/usr/local/bin:$PATH"
 npm run build
 
 echo "📦 部署到 msb8080.github.io/blog/..."

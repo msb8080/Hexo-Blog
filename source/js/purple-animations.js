@@ -28,15 +28,14 @@
             rootMargin: '0px 0px -50px 0px'
         });
 
-        targets.forEach(function (el) { observer.observe(el); });
-
-        /* 立即检查已在视口中的元素 */
+        /* 先检查已在视口中的元素，再观察其他元素 */
         targets.forEach(function (el) {
             var rect = el.getBoundingClientRect();
             var isInView = rect.top < window.innerHeight && rect.bottom > 0;
             if (isInView) {
                 el.classList.add('is-visible');
-                observer.unobserve(el);
+            } else {
+                observer.observe(el);
             }
         });
     }
