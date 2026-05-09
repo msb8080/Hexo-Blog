@@ -183,6 +183,15 @@ div.banner,
     min-height: auto !important;
 }
 
+/* 文章页面 header 高度压缩 */
+.post-page .header-inner,
+.page-page .header-inner {
+    height: auto !important;
+    min-height: 0 !important;
+    padding-top: 5rem !important;
+    padding-bottom: 1rem !important;
+}
+
 /* Banner 背景图层隐藏 */
 div.banner .banner-img,
 div.banner .full-bg-img,
