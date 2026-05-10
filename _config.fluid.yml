@@ -11,10 +11,10 @@ font:
 
 # 自定义 CSS/JS 注入
 custom_js:
-  - /js/purple-animations.js
+  - /js/purple-animations.js?v=4
 
 custom_css:
-  - /css/purple-theme.css
+  - /css/purple-theme.css?v=4
 
 # 顶部导航栏
 navbar:

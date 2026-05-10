@@ -570,6 +570,549 @@ sudo ceph daemon mon.<id> perf dump
 
 ---
 
+## 七、Java / Python 实战
+
+本节介绍如何用 Java 和 Python 操作 Ceph 的三大存储接口：RADOS Gateway (S3)、RBD (librados)、CephFS。
+
+### 7.1 Python 访问 RADOS Gateway (S3 兼容)
+
+RADOS Gateway (RGW) 兼容 AWS S3 协议，可直接使用 `boto3` 访问，这也是**最推荐**的 Python 接入方式。
+
+#### 安装依赖
+
+```bash
+pip install boto3
+```
+
+#### 基础操作：Bucket 与 Object
+
+```python
+import boto3
+from botocore.client import Config
+
+# 创建 S3 客户端（指向 Ceph RGW）
+s3 = boto3.client(
+    's3',
+    endpoint_url='http://rgw-node:8080',        # RGW 地址
+    aws_access_key_id='YOUR_ACCESS_KEY',
+    aws_secret_access_key='YOUR_SECRET_KEY',
+    config=Config(signature_version='s3v4'),     # 强制使用 v4 签名
+    region_name='default'
+)
+
+# --- Bucket 操作 ---
+s3.create_bucket(Bucket='my-data-lake')
+print("Buckets:", [b['Name'] for b in s3.list_buckets()['Buckets']])
+
+# --- 上传文件 ---
+s3.upload_file('/local/path/data.csv', 'my-data-lake', 'data/raw/data.csv')
+
+# --- 流式上传（适合大文件 / 内存数据） ---
+from io import BytesIO
+data = b'{"logs": [...]}'
+s3.upload_fileobj(BytesIO(data), 'my-data-lake', 'logs/app.json')
+
+# --- 下载文件 ---
+s3.download_file('my-data-lake', 'data/raw/data.csv', '/local/path/download.csv')
+
+# --- 列出对象（支持前缀过滤） ---
+response = s3.list_objects_v2(Bucket='my-data-lake', Prefix='data/')
+for obj in response.get('Contents', []):
+    print(f"  {obj['Key']}  size={obj['Size']}  modified={obj['LastModified']}")
+
+# --- 删除对象 ---
+s3.delete_object(Bucket='my-data-lake', Key='logs/app.json')
+```
+
+#### 分片上传（大文件 >5GB）
+
+```python
+# boto3 内置分片上传，自动处理
+from boto3.s3.transfer import TransferConfig
+
+config = TransferConfig(
+    multipart_threshold=1024 * 256,  # 256KB 以上启用分片
+    max_concurrency=10,
+    multipart_chunksize=1024 * 1024 * 100  # 每片 100MB
+)
+s3.upload_file('/local/path/huge-video.mp4', 'my-data-lake',
+               'videos/huge-video.mp4', Config=config)
+```
+
+#### 预签名 URL（临时授权访问）
+
+```python
+# 生成预签名 URL，有效期 3600 秒
+url = s3.generate_presigned_url(
+    'get_object',
+    Params={'Bucket': 'my-data-lake', 'Key': 'data/raw/data.csv'},
+    ExpiresIn=3600
+)
+print("Download URL:", url)
+# 分发给前端 / 第三方，无需暴露 AK/SK
+```
+
+### 7.2 Python 直接访问 librados（底层 RADOS）
+
+当需要**极致低延迟**或操作 RBD 镜像内部数据时，可使用 `python-rados` 直连集群。
+
+#### 安装依赖
+
+```bash
+# 系统依赖（以 Ubuntu 为例）
+sudo apt install python3-rados
+
+# 或使用 pip（需要先安装 ceph-dev 包）
+pip install rados
+```
+
+#### 连接集群与 IO 操作
+
+```python
+import rados
+
+# 1. 创建集群连接
+cluster = rados.Rados(conffile='/etc/ceph/ceph.conf')
+cluster.connect()
+print("Cluster ID:", cluster.get_fsid())
+
+# 2. 打开存储池
+ioctx = cluster.open_ioctx('my-pool')
+
+# 3. 写入对象
+ioctx.write_full('hello-obj', b'Hello Ceph from Python!')
+ioctx.write('large-obj', b'partial data...', offset=1024)
+
+# 4. 读取对象
+data = ioctx.read('hello-obj', length=1024)
+print("Read:", data.decode())
+
+# 5. 对象属性 (xattr)
+ioctx.set_xattr('hello-obj', 'content-type', b'text/plain')
+ct = ioctx.get_xattr('hello-obj', 'content-type')
+print("Xattr:", ct.decode())
+
+# 6. 对象统计
+stat = ioctx.stat('hello-obj')
+print(f"Size: {stat[0]}, Mtime: {stat[1]}")
+
+# 7. 列举对象
+object_iterator = ioctx.list_objects()
+for obj in object_iterator:
+    print(f"  {obj.key}")
+
+# 8. 清理
+ioctx.close()
+cluster.shutdown()
+```
+
+#### 操作 RBD 镜像
+
+```python
+import rbd
+
+# 创建 RBD 句柄
+ioctx = cluster.open_ioctx('rbd-pool')
+rbd_inst = rbd.RBD()
+
+# 列出镜像
+images = rbd_inst.list(ioctx)
+print("RBD Images:", images)
+
+# 创建镜像
+rbd_inst.create(ioctx, 'new-disk', size=10 * 1024**3)  # 10GB
+
+# 打开镜像并读写
+image = rbd.Image(ioctx, 'new-disk')
+image.write(b'Ceph RBD data', offset=0)
+data = image.read(0, 13)
+print("RBD read:", data.decode())
+
+# 创建快照
+image.create_snap('backup-snap')
+image.close()
+```
+
+### 7.3 Java 访问 RADOS Gateway (S3 兼容)
+
+Java 生态推荐使用 **AWS SDK v2**（`software.amazon.awssdk`），Ceph RGW 完全兼容 S3 协议。
+
+#### Maven 依赖
+
+```xml
+<dependency>
+    <groupId>software.amazon.awssdk</groupId>
+    <artifactId>s3</artifactId>
+    <version>2.25.0</version>
+</dependency>
+<!-- URL 连接所需的 CRT 传输 -->
+<dependency>
+    <groupId>software.amazon.awssdk</groupId>
+    <artifactId>s3-transfer-manager</artifactId>
+    <version>2.25.0</version>
+</dependency>
+```
+
+#### 基础操作封装
+
+```java
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.S3Configuration;
+
+import java.net.URI;
+import java.nio.file.Paths;
+
+public class CephS3Client {
+
+    private final S3Client s3;
+
+    public CephS3Client(String endpoint, String accessKey, String secretKey) {
+        this.s3 = S3Client.builder()
+                .endpointOverride(URI.create(endpoint))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretKey)))
+                .region(Region.of("default"))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(true)       // Ceph RGW 必须使用 path-style
+                        .chunkedEncodingEnabled(false)      // 部分 RGW 版本需要关闭
+                        .build())
+                .build();
+    }
+
+    // --- 创建 Bucket ---
+    public void createBucket(String bucket) {
+        s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        System.out.println("Bucket created: " + bucket);
+    }
+
+    // --- 上传文件 ---
+    public void uploadFile(String bucket, String key, String localPath) {
+        s3.putObject(PutObjectRequest.builder()
+                        .bucket(bucket).key(key).build(),
+                Paths.get(localPath));
+        System.out.println("Uploaded: " + key);
+    }
+
+    // --- 上传字节数组 ---
+    public void uploadBytes(String bucket, String key, byte[] data, String contentType) {
+        s3.putObject(PutObjectRequest.builder()
+                        .bucket(bucket).key(key)
+                        .contentType(contentType).build(),
+                RequestBody.fromBytes(data));
+    }
+
+    // --- 下载文件 ---
+    public void downloadFile(String bucket, String key, String localPath) {
+        s3.getObject(GetObjectRequest.builder()
+                        .bucket(bucket).key(key).build(),
+                Paths.get(localPath));
+        System.out.println("Downloaded: " + key);
+    }
+
+    // --- 列出对象 ---
+    public void listObjects(String bucket, String prefix) {
+        ListObjectsV2Response response = s3.listObjectsV2(
+                ListObjectsV2Request.builder()
+                        .bucket(bucket).prefix(prefix).build());
+        for (S3Object obj : response.contents()) {
+            System.out.printf("  %s  size=%d  modified=%s%n",
+                    obj.key(), obj.size(), obj.lastModified());
+        }
+    }
+
+    // --- 删除对象 ---
+    public void deleteObject(String bucket, String key) {
+        s3.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucket).key(key).build());
+    }
+
+    // --- 生成预签名 URL ---
+    public String presignedUrl(String bucket, String key) {
+        // 需要引入 presigned-url 模块，见下方
+        return "TODO";
+    }
+
+    public void close() {
+        s3.close();
+    }
+
+    // --- 使用示例 ---
+    public static void main(String[] args) {
+        CephS3Client client = new CephS3Client(
+                "http://rgw-node:8080",
+                "YOUR_ACCESS_KEY",
+                "YOUR_SECRET_KEY"
+        );
+
+        client.createBucket("java-data-lake");
+        client.uploadFile("java-data-lake", "config/app.yaml", "/etc/app/config.yaml");
+        client.listObjects("java-data-lake", "");
+        client.close();
+    }
+}
+```
+
+#### 预签名 URL（Java）
+
+```xml
+<dependency>
+    <groupId>software.amazon.awssdk</groupId>
+    <artifactId>presigned-url</artifactId>
+    <version>2.25.0</version>
+</dependency>
+```
+
+```java
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+
+S3Presigner presigner = S3Presigner.builder()
+        .endpointOverride(URI.create("http://rgw-node:8080"))
+        .credentialsProvider(StaticCredentialsProvider.create(
+                AwsBasicCredentials.create("ACCESS_KEY", "SECRET_KEY")))
+        .region(Region.of("default"))
+        .build();
+
+String url = presigner.presignGetObject(GetObjectPresignRequest.builder()
+        .signatureDuration(Duration.ofHours(1))
+        .getObjectRequest(GetObjectRequest.builder()
+                .bucket("java-data-lake").key("report.pdf").build())
+        .build()).url().toString();
+
+System.out.println("Download URL: " + url);
+```
+
+### 7.4 Java 直接访问 librados（jRados）
+
+对于需要**低延迟直连 Ceph 集群**的场景（如实时数据分析、RBD 内部操作），可使用 **jRados** Java 绑定。
+
+#### 安装 jRados
+
+```bash
+# 编译安装（需要先安装 librados-dev）
+git clone https://github.com/ceph/jrados.git
+cd jrados
+mvn clean install
+
+# 或使用 Ceph 自带的 Java 绑定
+sudo apt install librados-dev librados2
+# 编译 Java binding
+cd /usr/share/ceph/java
+javac -cp . *.java
+jar cf jrados.jar *.class
+```
+
+#### Maven 依赖（自建）
+
+```xml
+<dependency>
+    <groupId>org.ceph</groupId>
+    <artifactId>jrados</artifactId>
+    <version>1.0.0</version>
+    <scope>system</scope>
+    <systemPath>${project.basedir}/lib/jrados.jar</systemPath>
+</dependency>
+```
+
+#### 基础操作
+
+```java
+import org.ceph.rados.Rados;
+import org.ceph.rados.IoCTX;
+import org.ceph.rados.jna.RadosObjectInfo;
+
+public class CephRadosClient {
+
+    public static void main(String[] args) throws Exception {
+        // 1. 创建 Rados 句柄
+        Rados rados = new Rados("admin");  // Ceph 用户名
+        rados.confReadFile(new java.io.File("/etc/ceph/ceph.conf"));
+        rados.connect();
+
+        System.out.println("Cluster FSID: " + rados.getFsid());
+
+        // 2. 打开存储池
+        IoCTX ioctx = rados.ioCtxCreate("my-pool");
+
+        // 3. 写入对象
+        byte[] data = "Hello from Java!".getBytes();
+        ioctx.write("java-obj", data, data.length, 0);
+
+        // 4. 读取对象
+        byte[] buffer = new byte[1024];
+        int bytesRead = ioctx.read("java-obj", buffer, buffer.length, 0);
+        System.out.println("Read: " + new String(buffer, 0, bytesRead));
+
+        // 5. 对象属性 (xattr)
+        ioctx.setxattr("java-obj", "author", "java-app".getBytes());
+        byte[] xattrBuf = new byte[64];
+        int xattrLen = ioctx.getxattr("java-obj", "author", xattrBuf, xattrBuf.length);
+        System.out.println("Xattr: " + new String(xattrBuf, 0, xattrLen));
+
+        // 6. 对象信息
+        RadosObjectInfo info = ioctx.stat("java-obj");
+        System.out.println("Size: " + info.size);
+
+        // 7. 清理
+        rados.ioCtxDestroy(ioctx);
+        rados.shutdown();
+    }
+}
+```
+
+#### Spring Boot 集成示例
+
+```java
+import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
+
+@Service
+public class CephStorageService {
+
+    private final S3Client s3;
+    private final String defaultBucket;
+
+    public CephStorageService(S3Client s3,
+                               @Value("${ceph.bucket}") String defaultBucket) {
+        this.s3 = s3;
+        this.defaultBucket = defaultBucket;
+    }
+
+    /** 上传业务数据 */
+    public void upload(String key, byte[] data) {
+        s3.putObject(PutObjectRequest.builder()
+                        .bucket(defaultBucket).key(key).build(),
+                RequestBody.fromBytes(data));
+    }
+
+    /** 下载业务数据 */
+    public byte[] download(String key) {
+        return s3.getObjectAsBytes(GetObjectRequest.builder()
+                        .bucket(defaultBucket).key(key).build())
+                .asByteArray();
+    }
+
+    /** 检查对象是否存在 */
+    public boolean exists(String key) {
+        try {
+            s3.headObject(HeadObjectRequest.builder()
+                    .bucket(defaultBucket).key(key).build());
+            return true;
+        } catch (NoSuchKeyException e) {
+            return false;
+        }
+    }
+}
+```
+
+```yaml
+# application.yml
+ceph:
+  endpoint: http://rgw-node:8080
+  access-key: ${CEPH_ACCESS_KEY}    # 从环境变量读取
+  secret-key: ${CEPH_SECRET_KEY}
+  bucket: business-data
+  region: default
+```
+
+```java
+// CephConfig.java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
+
+@Configuration
+public class CephConfig {
+
+    @Bean
+    public S3Client cephS3Client(
+            @Value("${ceph.endpoint}") String endpoint,
+            @Value("${ceph.access-key}") String accessKey,
+            @Value("${ceph.secret-key}") String secretKey,
+            @Value("${ceph.region}") String region) {
+
+        return S3Client.builder()
+                .endpointOverride(URI.create(endpoint))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretKey)))
+                .region(Region.of(region))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(true)
+                        .build())
+                .build();
+    }
+}
+```
+
+### 7.5 Java / Python 操作 CephFS
+
+CephFS 可通过 `libcephfs` 的 Java/Python 绑定访问，但对于大多数业务场景，**直接 NFS 挂载 CephFS 后用标准文件 IO 操作更简单**。
+
+```python
+# Python 方式：挂载后直接读写（推荐）
+import os
+import shutil
+
+# 假设 CephFS 已挂载到 /mnt/cephfs
+cephfs_root = '/mnt/cephfs'
+
+# 读写文件（和本地文件系统完全一致）
+with open(os.path.join(cephfs_root, 'data', 'report.txt'), 'w') as f:
+    f.write('CephFS content from Python')
+
+# 列目录
+for item in os.listdir(os.path.join(cephfs_root, 'data')):
+    print(item)
+
+# 递归遍历
+for root, dirs, files in os.walk(cephfs_root):
+    for f in files:
+        print(os.path.join(root, f))
+```
+
+```java
+// Java 方式：挂载后用 NIO 操作（推荐）
+import java.nio.file.*;
+import java.nio.charset.StandardCharsets;
+
+Path cephfsRoot = Paths.get("/mnt/cephfs");
+
+// 写文件
+Files.write(cephfsRoot.resolve("data/report.txt"),
+        "CephFS content from Java".getBytes(StandardCharsets.UTF_8));
+
+// 读文件
+byte[] content = Files.readAllBytes(cephfsRoot.resolve("data/report.txt"));
+
+// 列目录
+try (var stream = Files.list(cephfsRoot.resolve("data"))) {
+    stream.forEach(System.out::println);
+}
+```
+
+### 7.6 SDK / 库速查表
+
+| 语言 | 库 | 安装 | 支持接口 | 适用场景 |
+|------|-----|------|----------|----------|
+| **Python** | `boto3` | `pip install boto3` | S3/RGW | 对象存储（推荐） |
+| **Python** | `python-rados` | `apt install python3-rados` | librados / RBD | 底层直连 |
+| **Python** | `minio` | `pip install minio` | S3/RGW | 对象存储（轻量） |
+| **Java** | AWS SDK v2 | Maven `software.amazon.awssdk:s3` | S3/RGW | 对象存储（推荐） |
+| **Java** | `jRados` | 编译安装 | librados / RBD | 底层直连 |
+| **Java** | `minio-java` | Maven `io.minio:minio` | S3/RGW | 对象存储（轻量） |
+
+---
+
 ## 总结
 
 Ceph 是一个功能强大的分布式存储系统，适合需要**统一存储、高可用、弹性扩展**的企业级场景。
@@ -595,10 +1138,21 @@ Ceph 是一个功能强大的分布式存储系统，适合需要**统一存储�
 
 ## 参考资料
 
+**官方文档：**
 - [Ceph 官方文档](https://docs.ceph.com/)
 - [Ceph 架构设计](https://ceph.io/en/architecture/)
 - [CRUSH 算法论文](https://ceph.io/wp-content/uploads/2016/08/weil-crush-sc06.pdf)
 - [Ceph 性能调优指南](https://docs.ceph.com/en/latest/rados/configuration/)
+
+**Python SDK：**
+- [boto3 S3 文档](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html)
+- [python-rados API](https://docs.ceph.com/en/latest/rados/api/python/)
+- [MinIO Python SDK](https://min.io/docs/minio/linux/developers/python/minio-py.html)
+
+**Java SDK：**
+- [AWS SDK for Java v2](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/home.html)
+- [jRados GitHub](https://github.com/ceph/jrados)
+- [MinIO Java SDK](https://min.io/docs/minio/linux/developers/java/minio-java.html)
 
 ---
 

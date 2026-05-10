@@ -18,6 +18,9 @@ cp -r "$SITE_DIR/../Hexo-Blog/public" "$SITE_DIR/blog"
 
 echo "🚀 推送到 GitHub..."
 cd "$SITE_DIR"
+# 确保 SSH agent 已加载 GitHub key
+eval "$(ssh-agent -s)" >/dev/null 2>&1
+ssh-add ~/.ssh/id_github 2>/dev/null
 git add -A
 git commit -m "deploy: 更新博客 $(date '+%Y-%m-%d %H:%M')" || echo "没有变更"
 git push
