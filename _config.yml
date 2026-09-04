@@ -100,8 +100,10 @@ ignore:
 theme: fluid
 
 # Deployment
+## 博客部署统一由 deploy.sh 脚本处理（输出到 /blog/ 目录）
+## 不要使用 hexo deploy，它会覆盖根目录的个人主页
 ## Docs: https://hexo.io/docs/one-command-deployment
-deploy:
-  type: 'git'
-  repository: git@github.com:msb8080/msb8080.github.io.git
-  branch: master
+# deploy:
+#   type: 'git'
+#   repository: git@github.com:msb8080/msb8080.github.io.git
+#   branch: master

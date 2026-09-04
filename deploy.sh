@@ -1,28 +1,46 @@
-#!/bin/bash
-# 博客部署脚本
-# 用法: ./deploy.sh
+#!/usr/bin/env bash
+# 构建 Hexo，并仅更新 GitHub Pages 仓库中的 /blog/ 子目录。
 
-set -e
+set -euo pipefail
 
-BLOG_DIR="$HOME/Desktop/ai-workspace/rainbow/Hexo-Blog"
-SITE_DIR="$HOME/Desktop/ai-workspace/rainbow/msb8080.github.io"
+blog_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+site_dir="${RAINBOW_SITE_DIR:-$blog_dir/../minshuaibo-person-current/msb8080.github.io}"
 
-echo "🔨 构建 Hexo 博客..."
-cd "$BLOG_DIR"
-export PATH="/usr/local/bin:$PATH"
+if [[ ! -d "$site_dir/.git" || ! -f "$site_dir/index.html" ]]; then
+  echo "Pages repository or its root homepage is unavailable: $site_dir" >&2
+  exit 2
+fi
+if [[ -n "$(git -C "$site_dir" status --porcelain)" ]]; then
+  echo "Pages repository has uncommitted changes; deployment stopped." >&2
+  exit 2
+fi
+if ! command -v rsync >/dev/null 2>&1; then
+  echo "rsync is required for a scoped /blog/ deployment." >&2
+  exit 2
+fi
+
+root_index_before="$(shasum -a 256 "$site_dir/index.html" | awk '{print $1}')"
+
+cd "$blog_dir"
+npm run clean
 npm run build
+mkdir -p "$site_dir/blog"
+rsync -a --delete "$blog_dir/public/" "$site_dir/blog/"
 
-echo "📦 部署到 msb8080.github.io/blog/..."
-rm -rf "$SITE_DIR/blog"
-cp -r "$SITE_DIR/../Hexo-Blog/public" "$SITE_DIR/blog"
+root_index_after="$(shasum -a 256 "$site_dir/index.html" | awk '{print $1}')"
+if [[ "$root_index_before" != "$root_index_after" ]]; then
+  echo "Root homepage changed unexpectedly; deployment stopped." >&2
+  exit 2
+fi
 
-echo "🚀 推送到 GitHub..."
-cd "$SITE_DIR"
-# 确保 SSH agent 已加载 GitHub key
-eval "$(ssh-agent -s)" >/dev/null 2>&1
-ssh-add ~/.ssh/id_github 2>/dev/null
-git add -A
-git commit -m "deploy: 更新博客 $(date '+%Y-%m-%d %H:%M')" || echo "没有变更"
-git push
+git -C "$site_dir" add blog
+if git -C "$site_dir" diff --cached --quiet; then
+  echo "No generated blog changes to publish."
+  exit 0
+fi
 
-echo "✅ 完成！访问 https://msb8080.github.io/blog/"
+git -C "$site_dir" commit -m "deploy: update blog $(date '+%Y-%m-%d %H:%M')"
+git -C "$site_dir" pull --rebase origin master
+git -C "$site_dir" push origin master
+
+echo "Published: https://msb8080.github.io/blog/"
