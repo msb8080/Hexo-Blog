@@ -3,6 +3,9 @@ title: "Agent Harness 系列 07：安全、评测与可观测性落地清单"
 date: 2026-09-04 21:30:00
 updated: 2026-09-04 21:30:00
 description: "面向生产 Agent 的安全与质量方案：威胁模型、权限分级、Prompt Injection 防护、回归评测、事件日志和上线门禁。"
+series: agent-harness
+series_title: Agent Harness 工程实践
+series_order: 7
 cover: "/img/default.png"
 tags:
   - Harness

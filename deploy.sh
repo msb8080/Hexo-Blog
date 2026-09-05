@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 构建 Hexo，并仅更新 GitHub Pages 仓库中的 /blog/ 子目录。
+# 构建 Astro，并仅更新 GitHub Pages 仓库中的 /blog/ 子目录。
 
 set -euo pipefail
 
@@ -22,10 +22,9 @@ fi
 root_index_before="$(shasum -a 256 "$site_dir/index.html" | awk '{print $1}')"
 
 cd "$blog_dir"
-npm run clean
 npm run build
 mkdir -p "$site_dir/blog"
-rsync -a --delete "$blog_dir/public/" "$site_dir/blog/"
+rsync -a --delete "$blog_dir/dist/" "$site_dir/blog/"
 
 root_index_after="$(shasum -a 256 "$site_dir/index.html" | awk '{print $1}')"
 if [[ "$root_index_before" != "$root_index_after" ]]; then

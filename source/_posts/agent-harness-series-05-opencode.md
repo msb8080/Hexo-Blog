@@ -3,6 +3,9 @@ title: "Agent Harness 系列 05：OpenCode 多模型配置与权限实战"
 date: 2026-09-04 21:50:00
 updated: 2026-09-04 21:50:00
 description: "使用 OpenCode 组织多模型 Provider、主 Agent、子 Agent、项目规则与细粒度权限，并规避版本配置差异。"
+series: agent-harness
+series_title: Agent Harness 工程实践
+series_order: 5
 cover: "/img/default.png"
 tags:
   - Harness

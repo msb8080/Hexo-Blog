@@ -9,9 +9,9 @@ usage() {
 Usage: ./bin/blog-flow.sh <command>
 
 Commands:
-  check    Validate environment and run clean/build checks
+  check    Validate content and run a production build
   preview  Start local preview server
-  release  Clean, build, and deploy
+  release  Validate and deploy the Astro build
 USAGE
 }
 
@@ -25,19 +25,14 @@ require_cmd() {
 check_fs_permissions() {
   local issues=0
 
-  if [[ -e "public" && ! -w "public" ]]; then
-    echo "[ERROR] No write permission: public/"
-    issues=1
-  fi
-
-  if [[ -e "db.json" && ! -w "db.json" ]]; then
-    echo "[ERROR] No write permission: db.json"
+  if [[ -e "dist" && ! -w "dist" ]]; then
+    echo "[ERROR] No write permission: dist/"
     issues=1
   fi
 
   if [[ "$issues" -ne 0 ]]; then
     echo "[HINT] Fix ownership and retry:"
-    echo "  sudo chown -R \$(whoami):staff public db.json docs source/_posts source/_drafts bin"
+    echo "  sudo chown -R \$(whoami):staff dist docs source/_posts source/_drafts bin"
     exit 1
   fi
 }
@@ -60,6 +55,7 @@ check_one_front_matter() {
   rg -q '^title:' "$file" || { echo "[ERROR] Missing title: $file"; exit 1; }
   rg -q '^date:' "$file" || { echo "[ERROR] Missing date: $file"; exit 1; }
   rg -q '^updated:' "$file" || { echo "[ERROR] Missing updated: $file"; exit 1; }
+  rg -q '^description:' "$file" || { echo "[ERROR] Missing description: $file"; exit 1; }
   rg -q '^tags:' "$file" || { echo "[ERROR] Missing tags: $file"; exit 1; }
   rg -q '^categories:' "$file" || { echo "[ERROR] Missing categories: $file"; exit 1; }
 }
@@ -100,8 +96,8 @@ run_check() {
   check_fs_permissions
   check_front_matter
 
-  echo "[INFO] npm run clean"
-  npm run clean
+  echo "[INFO] npm run check"
+  npm run check
 
   echo "[INFO] npm run build"
   npm run build
@@ -111,16 +107,17 @@ run_check() {
 
 run_preview() {
   require_cmd npm
-  echo "[INFO] Starting local preview on http://localhost:4000"
-  npm run server
+  echo "[INFO] Starting local preview on http://localhost:4321/blog/"
+  npm run dev
 }
 
 run_release() {
   require_cmd npm
+  require_cmd rg
 
-  echo "[INFO] Running clean/build/deploy"
-  npm run clean
-  npm run build
+  echo "[INFO] Checking content before deployment"
+  check_fs_permissions
+  check_front_matter
   npm run deploy
   echo "[OK] Release completed"
 }

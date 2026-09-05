@@ -3,6 +3,9 @@ title: "Agent Harness 系列 06：用 Java 与 Spring AI 自建业务 Agent"
 date: 2026-09-04 21:40:00
 updated: 2026-09-04 21:40:00
 description: "面向 Java 后端的自建 Harness 方案：状态机、模型适配、工具注册、审批、事件流、持久化和可替换模型。"
+series: agent-harness
+series_title: Agent Harness 工程实践
+series_order: 6
 cover: "/img/default.png"
 tags:
   - Harness

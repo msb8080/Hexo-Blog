@@ -3,6 +3,9 @@ title: "Agent Harness 系列 03：Codex 从仓库规则到可审计自动化"
 date: 2026-09-04 22:10:00
 updated: 2026-09-04 22:10:00
 description: "Codex CLI 与 SDK 使用路线：仓库规则、任务表达、权限审批、验证闭环和非交互自动化。"
+series: agent-harness
+series_title: Agent Harness 工程实践
+series_order: 3
 cover: "/img/default.png"
 tags:
   - Harness

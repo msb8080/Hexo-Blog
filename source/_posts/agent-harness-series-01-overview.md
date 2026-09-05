@@ -3,6 +3,9 @@ title: "Agent Harness 系列 01：从大模型到可执行系统"
 date: 2026-09-04 22:30:00
 updated: 2026-09-04 22:30:00
 description: "解释 Agent Harness 的核心组成、运行循环、上下文工程、工具协议、权限、沙箱和评测，并给出最小可用架构。"
+series: agent-harness
+series_title: Agent Harness 工程实践
+series_order: 1
 cover: "/img/default.png"
 tags:
   - Harness

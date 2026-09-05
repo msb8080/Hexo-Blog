@@ -1,159 +1,65 @@
-# 博客工具使用手册（落地版）
+# 博客工具使用手册
 
-## 1. 这套工具包含什么
-
-- 流程总览文档：`docs/BLOG_WORKFLOW.md`
-- 自动化脚本：`bin/blog-flow.sh`
-- 本地 Skill：`skills/blog-ops-fastlane/SKILL.md`
-- 写作模板：`scaffolds/post.md`
-- 草稿模板：`scaffolds/draft.md`
-
-## 2. 前置准备
-
-在项目根目录执行：
+## 准备
 
 ```bash
+nvm use
 npm install
 ```
 
-确认命令可用：
+项目要求 Node 24；Astro 的最低运行版本是 Node 22.12。
 
-```bash
-node -v
-npm -v
-rg --version
-```
+## 三个统一命令
 
-如果 `rg` 不存在：
-
-- macOS: `brew install ripgrep`
-
-## 3. 日常使用（最短路径）
-
-### 3.1 新写一篇正式文章
-
-```bash
-npx hexo new post "文章标题"
-```
-
-填写 `scaffolds/post.md` 结构后，执行：
-
-```bash
-./bin/blog-flow.sh check
-./bin/blog-flow.sh preview
-./bin/blog-flow.sh release
-```
-
-### 3.2 写季度复盘草稿
-
-```bash
-npx hexo new draft "2026Q2-博客复盘"
-```
-
-按 `scaffolds/draft.md` 写完后：
-
-```bash
-npx hexo publish "2026Q2-博客复盘"
-./bin/blog-flow.sh check
-./bin/blog-flow.sh preview
-./bin/blog-flow.sh release
-```
-
-## 4. 三个自动化命令说明
-
-### `check`
+### 校验
 
 ```bash
 ./bin/blog-flow.sh check
 ```
 
-会自动执行：
+检查 `npm`、`rg`、输出目录权限和变更文章的 Front Matter，然后执行完整 Astro 生产构建。内容 schema、Markdown 解析、所有静态路由、RSS 和 Sitemap 都在这一步验证。
 
-1. 检查 `npm`、`rg` 是否安装。
-2. 检查关键文件写权限（`public/`、`db.json`）。
-3. 检查最新文章 Front Matter 是否包含：
-   - `title`
-   - `date`
-   - `updated`
-   - `tags`
-   - `categories`
-4. 执行 `npm run clean`。
-5. 执行 `npm run build`。
-
-### `preview`
+### 预览
 
 ```bash
 ./bin/blog-flow.sh preview
 ```
 
-启动本地预览服务：`http://localhost:4000`
+访问 `http://localhost:4321/blog/`。开发服务器支持热更新。
 
-### `release`
+若要验证最终生产文件：
+
+```bash
+npm run build
+npm run preview
+```
+
+### 发布
 
 ```bash
 ./bin/blog-flow.sh release
 ```
 
-执行发布流水线：`clean -> build -> deploy`
+流程为 `check -> Astro build -> dist/ -> Pages 仓库 blog/ -> commit -> pull --rebase -> push`。部署脚本会拒绝脏的 Pages 工作区，并验证根目录首页哈希没有变化。
 
-## 5. Skill 怎么用
+## 常见问题
 
-Skill 文件位置：`skills/blog-ops-fastlane/SKILL.md`
+### npm 内网仓库下载缓慢
 
-建议规则：
-
-1. 发版前优先跑 `check`，再跑 `preview`。
-2. 检查通过后再执行 `release`。
-3. 模板更新后，同步更新 Skill 说明。
-
-## 6. 常见问题
-
-### 6.1 权限报错（EACCES / Operation not permitted）
-
-症状：`npm run build` 无法写 `public/` 或 `db.json`。
-
-修复：
+仅在依赖均为公开 npm 包且确认内网代理不可用时，可对单次安装指定官方仓库；不要修改全局配置：
 
 ```bash
-sudo chown -R $(whoami):staff public db.json docs source/_posts source/_drafts bin
+npm install --registry=https://registry.npmjs.org
 ```
 
-### 6.2 `check` 失败提示 Front Matter 缺字段
+### 内容构建失败
 
-打开最新文章，补全：
+优先查看报错中的 Markdown 文件和字段名。常见原因是日期格式错误、`tags/categories` 写成字符串，或缺少 `description`。
 
-- `title`
-- `date`
-- `updated`
-- `tags`
-- `categories`
+### 文章 URL 日期变化
 
-再重跑：
+已发布文章的 `date` 决定 URL 年月日。更新文章只改 `updated`，不要改 `date` 或文件名。
 
-```bash
-./bin/blog-flow.sh check
-```
+### 线上没更新
 
-### 6.3 线上没更新
-
-排查顺序：
-
-1. `./bin/blog-flow.sh release` 是否成功。
-2. 部署仓库和分支是否正确。
-3. 托管平台构建日志是否报错。
-
-## 7. 团队/长期维护建议
-
-1. 将 `check` 作为发布门禁。
-2. 每次文章更新都改 `updated`。
-3. 每季度至少产出一次复盘文。
-4. 模板改动后更新以下文档：
-   - `docs/BLOG_WRITING_TEMPLATE.md`
-   - `docs/BLOG_WORKFLOW.md`
-   - `docs/BLOG_TOOLS_USAGE.md`
-
-## 8. 一句话执行清单
-
-```bash
-npx hexo new post "标题" && ./bin/blog-flow.sh check && ./bin/blog-flow.sh preview && ./bin/blog-flow.sh release
-```
+依次确认本地构建、Pages 仓库推送和 GitHub Pages 发布状态。源仓库 Actions 若受账户状态影响，可继续使用本地 `deploy.sh` 的受控发布路径。

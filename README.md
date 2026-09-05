@@ -1,40 +1,61 @@
-# Hexo-Blog
+# AI Composer Blog
 
-AI Composer 技术猿的 Hexo 博客工程仓库。
+AI Composer 技术猿的 Astro 静态博客，内容聚焦前沿模型、Agent Harness 与 AI 后端工程。
 
-## 1. 项目目标
+## 技术栈
 
-- 沉淀 AI 后端、面试总结、投资理财与副业研究的长期内容
-- 用可复用流程保证写作、校验、预览、发布稳定执行
-- 通过模板化与季度复盘持续迭代内容质量
+- Node.js `24.x`（Astro 最低要求为 `22.12`）
+- Astro `7.x`
+- Markdown Content Collections
+- 构建期搜索索引、RSS 与 Sitemap
+- GitHub Pages，站点挂载在 `/blog/`
 
-## 2. 技术栈
-
-- Node.js: `22.x`（见 `.nvmrc`）
-- npm: `10.x`（见 `package.json#engines`）
-- SSG: `hexo@7.3.0`
-- Theme: `hexo-theme-fluid`
-
-## 3. 快速开始
+## 快速开始
 
 ```bash
 npm install
-npm run clean
-npm run build
-npm run server
+npm run dev
 ```
 
-本地预览默认地址：`http://localhost:4000`
+开发地址默认为 `http://localhost:4321/blog/`。
 
-## 4. 日常写作与发布流程
-
-### 新建文章
+生产构建与本地预览：
 
 ```bash
-npx hexo new post "文章标题"
+npm run build
+npm run preview
 ```
 
-### 校验、预览、发布
+## 内容与代码
+
+- `source/_posts/`：已发布 Markdown；保留原目录以降低迁移噪音
+- `source/_drafts/`：未参与构建的草稿
+- `src/content.config.ts`：Front Matter 数据约束
+- `src/pages/`：首页、文章、归档、分类、标签、RSS 与搜索路由
+- `src/components/`、`src/layouts/`：页面组件和布局
+- `src/styles/global.css`：全站视觉系统
+- `dist/`：Astro 构建产物，不入源代码仓库
+
+## 写作
+
+在 `source/_posts/` 新建 Markdown，文件名会成为文章 URL 的最后一段。必填 Front Matter：
+
+```yaml
+---
+title: 文章标题
+date: 2026-09-05 10:00:00
+updated: 2026-09-05 10:00:00
+description: 一句话摘要
+tags:
+  - Agent
+categories:
+  - AI 后端学习
+---
+```
+
+历史永久链接格式为 `/:year/:month/:day/:filename/`，不要随意重命名已发布文件或修改发布日期。
+
+## 校验与发布
 
 ```bash
 ./bin/blog-flow.sh check
@@ -42,46 +63,6 @@ npx hexo new post "文章标题"
 ./bin/blog-flow.sh release
 ```
 
-## 5. 关键目录说明
+`release` 会调用 `deploy.sh`，只同步 `dist/` 到 Pages 仓库的 `/blog/` 子目录，并校验根站首页未被改动。发布前请确保 Pages 仓库工作区干净。
 
-- `source/_posts/`: 已发布文章
-- `source/_drafts/`: 草稿与系列开篇草稿
-- `scaffolds/`: 文章/草稿模板
-- `docs/`: 架构、流程、写作与复盘文档
-- `bin/`: 自动化脚本
-
-## 6. 文档索引
-
-- 架构说明：`docs/ARCHITECTURE.md`
-- 流程清单：`docs/BLOG_WORKFLOW.md`
-- 工具手册：`docs/BLOG_TOOLS_USAGE.md`
-- 写作模板：`docs/BLOG_WRITING_TEMPLATE.md`
-- 季度复盘模板：`docs/QUARTERLY_BLOG_REVIEW_TEMPLATE.md`
-- 开发日志：`docs/DEVELOPMENT_LOG.md`
-- 分析归档：`docs/2026-04-30-项目分析与长期优化建议.md`
-- 90 天路线图：`docs/ROADMAP_90_DAYS.md`
-- 选题清单：`docs/TOPIC_BACKLOG_Q2_Q3.md`
-
-## 7. 发布前最小检查
-
-- Front Matter 字段完整（`title/date/updated/tags/categories`）
-- 命令可复制执行
-- 移动端预览正常
-- 外链可访问
-- `updated` 已更新
-
-## 8. 常见问题
-
-### 权限报错（EACCES / Operation not permitted）
-
-```bash
-sudo chown -R $(whoami):staff public db.json docs source/_posts source/_drafts bin
-```
-
-### 线上没更新
-
-按顺序排查：
-
-1. `./bin/blog-flow.sh release` 是否成功
-2. `_config.yml` 的部署仓库与分支是否正确
-3. 托管平台构建日志是否报错
+详细设计见 `docs/ARCHITECTURE.md`。

@@ -1,60 +1,57 @@
-# Hexo-Blog 架构文档
+# AI Composer Blog 架构
 
-## 1. 项目定位
-本项目是一个基于 Hexo 的静态博客站点工程，使用 `source/` 作为内容源目录，`public/` 作为构建产物目录，并通过 Git 部署到 GitHub Pages 仓库 `msb8080/msb8080.github.io`。
+## 1. 架构结论
 
-## 2. 技术栈
-- 运行时：Node.js `22.x`（见 `.nvmrc` 与 `package.json#engines`）
-- 静态站点生成器：Hexo `7.3.0`
-- 主题：`fluid`（通过 `npm` 依赖 `hexo-theme-fluid` 管理，避免本地空主题目录风险）
-- 部署插件：`hexo-deployer-git`
-- 常用插件：
-  - `hexo-generator-archive/category/tag/index`
-  - `hexo-generator-feed`
-  - `hexo-generator-sitemap`
-  - `hexo-browsersync`
+本站已从“Hexo + 固定主题”升级为 Astro 静态内容架构。Markdown 仍是内容源，页面结构、系列导航、搜索、RSS 与 SEO 文件改为站点代码直接管理。生产环境继续使用 GitHub Pages，不引入服务端、数据库或运行时 API。
 
-## 3. 目录结构与职责
-- `source/`：站点内容源（文章、页面、资源）
-- `scaffolds/`：新建文章/页面模板
-- `themes/`：主题覆盖目录（当前不存放主题源码，主题由 `node_modules/hexo-theme-fluid` 提供）
-- `public/`：静态构建输出目录（可直接部署）
-- `.deploy_git/`：Hexo deploy 生成的部署临时 Git 工作目录
-- `_config.yml`：全站主配置
-- `db.json`：Hexo 内容数据库缓存
-- `.github/dependabot.yml`：依赖更新策略（npm 每日扫描）
+## 2. 关键设计
 
-## 4. 构建与发布流程
-### 4.1 本地开发流程
-1. 安装依赖：`npm install`
-2. 清理缓存：`npm run clean`
-3. 本地预览：`npm run server`
-4. 构建产物：`npm run build`
+- Astro `output: static`：所有页面在构建期生成，线上仅提供静态文件。
+- `base: /blog`：资源和站内链接统一适配项目子路径。
+- Content Collections：从 `source/_posts/*.md` 加载文章，并用 Zod 校验 Front Matter。
+- 稳定 URL：继续使用 `/:year/:month/:day/:filename/`，迁移前后 108 个 `index.html` 路由完全一致。
+- 构建期派生：生成分类、标签、年月归档、分页、`search.json`、`atom.xml` 和 Sitemap。
+- 零客户端框架：页面主体输出纯 HTML；浏览器脚本只负责主题、导航、搜索、目录和复制操作。
 
-### 4.2 线上部署流程
-1. 执行 `npm run deploy`。
-2. Hexo 将 `public/` 内容推送到 `_config.yml` 中 `deploy.repository` 指定仓库分支（当前为 `master`）。
-3. GitHub Pages 从该仓库分支发布。
+## 3. 目录职责
 
-## 5. 配置要点（来自当前仓库）
-- 站点基础信息：`title = 闵帅博的个人博客`
-- 永久链接：`/:year/:month/:day/:title/`
-- 主题：`theme: fluid`
-- 部署：
-  - `type: git`
-  - `repository: git@github.com:msb8080/msb8080.github.io.git`
-  - `branch: master`
-- 域名：`url: https://msb8080.github.io`
+```text
+astro.config.mjs          Astro、域名与 /blog/ 基路径配置
+source/_posts/            已发布 Markdown 内容
+source/_drafts/           不参与构建的草稿
+src/content.config.ts     内容字段约束
+src/lib/site.ts           URL、日期、标签与文章工具函数
+src/layouts/              HTML 基础布局
+src/components/           导航、卡片、搜索与分页组件
+src/pages/                静态路由与构建期端点
+src/styles/               全站视觉系统
+static/                   原样复制的静态文件
+dist/                     构建结果
+deploy.sh                 /blog/ 范围发布脚本
+```
 
-## 6. 当前架构风险与影响
-1. **运行环境一致性**：已通过 `.nvmrc` + `engines` 约束 Node/npm 版本，但团队协作仍需统一启用 nvm。
-2. **部署凭据耦合**：`hexo deploy` 依赖本机 SSH 凭据与 `known_hosts`，新机器首次部署需初始化 SSH 信任。
-3. **仓库中保留 `public/` 与 `db.json`**：适合“产物直出”场景，但会增加合并噪音与仓库体积。
+旧 `_config.yml`、`_config.fluid.yml`、`scaffolds/` 与 `source/css|js` 暂时作为迁移回退材料保留，不参与 Astro 构建。稳定运行一段时间后可在独立清理提交中移除。
 
-## 7. 建议改进
-1. 增加 CI（GitHub Actions）自动构建与部署，减少本机 SSH 环境差异导致的发布失败。
-2. 为新成员补充 SSH 初始化步骤（`ssh -T git@github.com`、`known_hosts` 处理）。
-3. 对 `public/` 是否入库做长期策略决策（保留产物直出 vs CI 发布产物）。
+## 4. 构建链路
 
-## 8. 架构结论
-当前项目是“Hexo 内容工程 + GitHub Pages（SSH）发布链路”的标准静态博客架构，且已完成主题可追溯化、依赖可复现化、域名配置修复三项基础治理，具备稳定迭代能力。
+1. `npm ci` 安装锁定依赖。
+2. `npm run build` 校验内容并生成 `dist/`。
+3. `npm run preview` 在 `/blog/` 基路径预览生产产物。
+4. `deploy.sh` 检查 Pages 仓库和根首页，使用 `rsync --delete` 只更新 `blog/`。
+5. Pages 仓库产生独立提交并推送到 `master`。
+
+源仓库的 GitHub Actions 使用相同的 Node 24 与 `npm ci && npm run build`，再把 `dist/` 发布到外部 Pages 仓库。若 GitHub 账户级 Actions 暂不可用，本地受控发布仍是有效路径。
+
+## 5. 内容模型
+
+必填字段：`title`、`date`、`description`、`tags`、`categories`。`updated`、`keywords`、`series`、`series_title`、`series_order` 可选；`draft: true` 的文章不会输出。
+
+日期按 Markdown 中的东八区壁钟时间解释。路由只取原始年月日，避免 YAML Date 转换导致晚间文章跨日。
+
+## 6. 风险控制
+
+- URL 回归：构建后对比旧 Hexo 和新 Astro 的全部 HTML 路由。
+- 发布边界：同步前后校验 Pages 根目录 `index.html` 哈希。
+- XSS：搜索结果使用 DOM `textContent` 创建，不把索引内容直接注入 HTML。
+- 依赖：只保留 Astro、RSS 和 Sitemap 三个生产依赖，锁文件纳入版本控制。
+- 回退：正式发布前保留旧线上产物；若发布异常，可回滚 Pages 仓库的单次部署提交。

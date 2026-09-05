@@ -3,6 +3,9 @@ title: "Agent Harness 系列 02：Codex、Claude Code、OpenCode 与自建方案
 date: 2026-09-04 22:20:00
 updated: 2026-09-04 22:20:00
 description: "从模型自由度、权限、沙箱、扩展、自动化和团队治理维度，对比 Codex、Claude Code、OpenCode 与自建 Harness。"
+series: agent-harness
+series_title: Agent Harness 工程实践
+series_order: 2
 cover: "/img/default.png"
 tags:
   - Harness

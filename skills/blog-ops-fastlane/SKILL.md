@@ -2,43 +2,29 @@
 
 ## Purpose
 
-Provide a fast, repeatable workflow to validate and execute a Hexo blog release.
+Provide a repeatable workflow to validate, preview, and release the Astro blog.
 
 ## Use this skill when
 
-- You need a quick pre-release validation.
-- You want one-command preview or release.
-- You need consistent execution for long-term maintenance.
+- A post or site component needs pre-release validation.
+- The local Astro preview must be started.
+- The `/blog/` site must be published without touching the Pages root homepage.
 
 ## Commands
 
-- Check pipeline: `./bin/blog-flow.sh check`
-- Local preview: `./bin/blog-flow.sh preview`
-- Release pipeline: `./bin/blog-flow.sh release`
+- Check: `./bin/blog-flow.sh check`
+- Preview: `./bin/blog-flow.sh preview`
+- Release: `./bin/blog-flow.sh release`
 
-## What `check` validates
+## Validation contract
 
-1. Required tools (`npm`, `rg`) are installed.
-2. Latest post contains required Front Matter fields:
-   - `title`
-   - `date`
-   - `updated`
-   - `tags`
-   - `categories`
-3. `npm run clean` succeeds.
-4. `npm run build` succeeds.
+1. Require `npm` and `rg`.
+2. Validate changed Markdown Front Matter.
+3. Run the complete Astro production build.
+4. Before release, require a clean Pages repository and preserve its root `index.html`.
 
 ## Failure handling
 
-- Permission errors on `public/` or `db.json`:
-  - Fix ownership locally, then rerun `check`.
-- Build errors:
-  - Check `_config.yml`, theme config, and dependency state.
-
-## Long-term maintenance rule
-
-- Always run `check` before `release`.
-- Keep templates updated in:
-  - `scaffolds/post.md`
-  - `scaffolds/draft.md`
-  - `docs/BLOG_WRITING_TEMPLATE.md`
+- Content errors: fix the exact Markdown field reported by Astro.
+- Dependency errors: preserve the lock file; do not modify global npm configuration.
+- Deployment errors: leave both repositories recoverable and do not force push.

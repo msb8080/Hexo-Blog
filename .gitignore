@@ -1,7 +1,11 @@
 # Dependencies
 node_modules/
 
-# Hexo generated artifacts
+# Astro generated artifacts
+dist/
+.astro/
+
+# Legacy Hexo generated artifacts
 public/
 db.json
 .deploy_git/

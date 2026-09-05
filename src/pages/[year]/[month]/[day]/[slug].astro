@@ -1,0 +1,64 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import type { Post } from '../../../../lib/site';
+import { formatDate, postPath, readingMinutes, sortPosts, sourceDateIso, taxonomySlug, withBase } from '../../../../lib/site';
+
+export async function getStaticPaths() {
+  const posts = sortPosts(await getCollection('posts'));
+  return posts.map((post) => {
+    const [year, month, day, slug] = postPath(post).split('/').filter(Boolean);
+    return { params: { year, month, day, slug }, props: { post, posts } };
+  });
+}
+
+const { post, posts } = Astro.props as { post: Post; posts: Post[] };
+const { Content } = await render(post);
+const index = posts.findIndex((candidate) => candidate.id === post.id);
+const newer = index > 0 ? posts[index - 1] : undefined;
+const older = index < posts.length - 1 ? posts[index + 1] : undefined;
+const seriesPosts = post.data.series
+  ? posts.filter((candidate) => candidate.data.series === post.data.series).sort((a, b) => (a.data.series_order ?? 0) - (b.data.series_order ?? 0))
+  : [];
+const categoryPath = post.data.categories.map(taxonomySlug).join('/');
+---
+
+<BaseLayout title={post.data.title} description={post.data.description} type="article" publishedTime={sourceDateIso(post.data.date)}>
+  <article class="article-shell shell">
+    <header class="article-header">
+      <div class="article-kicker">
+        <time datetime={sourceDateIso(post.data.date)}>{formatDate(post.data.date)}</time>
+        <span>·</span><span>{readingMinutes(post.body)} 分钟阅读</span>
+        {post.data.categories.length > 0 && <><span>·</span><a href={withBase(`/categories/${categoryPath}/`)}>{post.data.categories.at(-1)}</a></>}
+      </div>
+      <h1>{post.data.title}</h1>
+      <p class="article-description">{post.data.description}</p>
+      <div class="article-tags">
+        {(post.data.tags as string[]).map((tag: string) => <a href={withBase(`/tags/${taxonomySlug(tag)}/`)}>#{tag}</a>)}
+      </div>
+    </header>
+
+    {seriesPosts.length > 0 && (
+      <nav class="series-bar" aria-label="专题系列">
+        <span>{post.data.series_title ?? '专题系列'} · {seriesPosts.length} 篇</span>
+        <div>
+          {seriesPosts.map((item) => (
+            <a class:list={{ 'is-current': item.id === post.id }} aria-current={item.id === post.id ? 'page' : undefined} href={withBase(postPath(item))} title={item.data.title}>{item.data.series_order}</a>
+          ))}
+        </div>
+      </nav>
+    )}
+
+    <div class="article-layout">
+      <div class="article-content"><Content /></div>
+      <aside class="article-aside">
+        <div class="aside-card"><span>ON THIS PAGE</span><nav data-toc></nav></div>
+      </aside>
+    </div>
+    <footer class="article-footer">
+      <span>{older ? <a href={withBase(postPath(older))}>← {older.data.title}</a> : '已经是最早一篇'}</span>
+      <button type="button" data-copy-url>复制文章链接</button>
+      <span>{newer ? <a href={withBase(postPath(newer))}>{newer.data.title} →</a> : '已经是最新一篇'}</span>
+    </footer>
+  </article>
+</BaseLayout>

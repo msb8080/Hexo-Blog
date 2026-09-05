@@ -3,6 +3,9 @@ title: "Agent Harness 系列 04：Claude Code 的规则、权限、Hooks 与 Age
 date: 2026-09-04 22:00:00
 updated: 2026-09-04 22:00:00
 description: "Claude Code 实战指南，覆盖安装、CLAUDE.md、设置作用域、权限、Hooks、MCP、Skills 和 Agent SDK。"
+series: agent-harness
+series_title: Agent Harness 工程实践
+series_order: 4
 cover: "/img/default.png"
 tags:
   - Harness
