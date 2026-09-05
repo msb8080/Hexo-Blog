@@ -16,8 +16,6 @@ categories:
   - AI 后端学习
 ---
 
-> 系列导航：[01 原理](/blog/2026/09/04/agent-harness-series-01-overview/) · [02 选型](/blog/2026/09/04/agent-harness-series-02-selection/) · [03 Codex](/blog/2026/09/04/agent-harness-series-03-codex/) · [04 Claude Code](/blog/2026/09/04/agent-harness-series-04-claude-code/) · **05 OpenCode** · [06 Java 自建](/blog/2026/09/04/agent-harness-series-06-java-spring-ai/) · [07 安全评测](/blog/2026/09/04/agent-harness-series-07-security-evaluation/)
-
 OpenCode 的核心吸引力是开放和多模型：可以按任务在不同 Provider/模型间选择，并用 Agent 配置约束提示词、步数和工具权限。入口见 [OpenCode Providers](https://opencode.ai/docs/providers) 与 [Agents](https://opencode.ai/docs/agents)。
 
 ## 1. 先建立两个角色

@@ -16,8 +16,6 @@ categories:
   - AI 后端学习
 ---
 
-> 系列导航：[01 原理](/blog/2026/09/04/agent-harness-series-01-overview/) · [02 选型](/blog/2026/09/04/agent-harness-series-02-selection/) · [03 Codex](/blog/2026/09/04/agent-harness-series-03-codex/) · [04 Claude Code](/blog/2026/09/04/agent-harness-series-04-claude-code/) · [05 OpenCode](/blog/2026/09/04/agent-harness-series-05-opencode/) · [06 Java 自建](/blog/2026/09/04/agent-harness-series-06-java-spring-ai/) · **07 安全评测**
-
 Harness 的价值不是让模型“拥有更多权限”，而是让能力、权限、证据和责任边界可以被工程化管理。安全和评测必须进入执行循环，而不是上线前补一份文档。
 
 ## 1. 先画威胁模型

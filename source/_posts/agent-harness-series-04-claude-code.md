@@ -16,8 +16,6 @@ categories:
   - AI 后端学习
 ---
 
-> 系列导航：[01 原理](/blog/2026/09/04/agent-harness-series-01-overview/) · [02 选型](/blog/2026/09/04/agent-harness-series-02-selection/) · [03 Codex](/blog/2026/09/04/agent-harness-series-03-codex/) · **04 Claude Code** · [05 OpenCode](/blog/2026/09/04/agent-harness-series-05-opencode/) · [06 Java 自建](/blog/2026/09/04/agent-harness-series-06-java-spring-ai/) · [07 安全评测](/blog/2026/09/04/agent-harness-series-07-security-evaluation/)
-
 [Claude Code](https://code.claude.com/docs/en/overview) 把同一套 Agent 引擎带到终端、IDE、桌面和 Web。它适合把一次对话逐步沉淀为仓库规则、可复用 Skill、Hook 和自动化任务。
 
 ## 1. 安装

@@ -29,6 +29,7 @@ const nextPost = seriesPosts.length > 0 ? seriesNext : newer;
 const categoryPath = post.data.categories.map(taxonomySlug).join('/');
 const updatedTime = sourceDateIso(post.data.updated ?? post.data.date);
 const modifiedTime = sourceDateIso(post.data.last_verified ?? post.data.updated ?? post.data.date);
+const showUpdated = post.data.updated && formatDate(post.data.updated) !== formatDate(post.data.date);
 const relatedPosts = posts
   .filter((candidate) => candidate.id !== post.id)
   .map((candidate) => {
@@ -62,7 +63,7 @@ const relatedPosts = posts
         <span>发布 <time datetime={sourceDateIso(post.data.date)}>{formatDate(post.data.date)}</time></span>
         {post.data.last_verified
           ? <><span>·</span><span>核验 <time datetime={sourceDateIso(post.data.last_verified)}>{formatDate(post.data.last_verified)}</time></span></>
-          : post.data.updated && <><span>·</span><span>更新 <time datetime={updatedTime}>{formatDate(post.data.updated)}</time></span></>}
+          : showUpdated && post.data.updated && <><span>·</span><span>更新 <time datetime={updatedTime}>{formatDate(post.data.updated)}</time></span></>}
         <span>·</span><span>{readingMinutes(post.body)} 分钟阅读</span>
         {post.data.categories.length > 0 && <><span>·</span><a href={withBase(`/categories/${categoryPath}/`)}>{post.data.categories.at(-1)}</a></>}
       </div>

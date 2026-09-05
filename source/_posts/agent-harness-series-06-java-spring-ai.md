@@ -16,8 +16,6 @@ categories:
   - AI 后端学习
 ---
 
-> 系列导航：[01 原理](/blog/2026/09/04/agent-harness-series-01-overview/) · [02 选型](/blog/2026/09/04/agent-harness-series-02-selection/) · [03 Codex](/blog/2026/09/04/agent-harness-series-03-codex/) · [04 Claude Code](/blog/2026/09/04/agent-harness-series-04-claude-code/) · [05 OpenCode](/blog/2026/09/04/agent-harness-series-05-opencode/) · **06 Java 自建** · [07 安全评测](/blog/2026/09/04/agent-harness-series-07-security-evaluation/)
-
 当 Agent 需要嵌入业务系统、接入内部审批、支持租户隔离并沉淀审计数据时，自建 Harness 才真正有价值。Spring AI 提供模型、工具调用和可观测性抽象，具体 API 以[官方参考文档](https://docs.spring.io/spring-ai/reference/)为准。
 
 ## 1. 先定义领域状态机

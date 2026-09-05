@@ -16,8 +16,6 @@ categories:
   - AI 后端学习
 ---
 
-> 系列导航：[01 原理](/blog/2026/09/04/agent-harness-series-01-overview/) · **02 选型** · [03 Codex](/blog/2026/09/04/agent-harness-series-03-codex/) · [04 Claude Code](/blog/2026/09/04/agent-harness-series-04-claude-code/) · [05 OpenCode](/blog/2026/09/04/agent-harness-series-05-opencode/) · [06 Java 自建](/blog/2026/09/04/agent-harness-series-06-java-spring-ai/) · [07 安全评测](/blog/2026/09/04/agent-harness-series-07-security-evaluation/)
-
 ## 一张表先做初筛
 
 | 方案 | 更适合 | 主要优势 | 需要注意 |

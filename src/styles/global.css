@@ -88,12 +88,10 @@ img { max-width: 100%; height: auto; }
 .button-primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 15px 40px rgba(113,66,202,.24); }
 .button:hover { transform: translateY(-2px); border-color: var(--accent); }
 .button-secondary { background: var(--surface); }
-.signal-card { align-self: end; padding: 26px; min-height: 340px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(155deg, rgba(166,120,255,.13), var(--surface)); box-shadow: var(--shadow); position: relative; overflow: hidden; }
-.signal-card::after { content: ''; position: absolute; width: 230px; height: 230px; right: -90px; top: -95px; border: 1px solid var(--line); border-radius: 50%; box-shadow: 0 0 0 38px rgba(166,120,255,.035), 0 0 0 78px rgba(166,120,255,.025); }
-.signal-card__top { display: flex; justify-content: space-between; color: var(--muted); font-size: .67rem; letter-spacing: .14em; }
-.signal-card > strong { font-size: clamp(2.2rem, 4vw, 3.7rem); line-height: 1; letter-spacing: -.06em; }
-.signal-card > p { color: var(--text-soft); position: relative; z-index: 1; }
-.signal-card dl { margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); padding-top: 18px; }
+.signal-card { align-self: end; min-height: 340px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(155deg, rgba(166,120,255,.13), var(--surface)); box-shadow: var(--shadow); overflow: hidden; }
+.signal-card__image { width: 100%; aspect-ratio: 1200 / 630; object-fit: cover; display: block; }
+.signal-card__top { display: flex; justify-content: space-between; padding: 17px 20px 12px; color: var(--muted); font-size: .67rem; letter-spacing: .14em; }
+.signal-card dl { margin: auto 20px 20px; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); padding-top: 14px; width: calc(100% - 40px); }
 .signal-card dl div { display: flex; flex-direction: column; }
 .signal-card dt { font-size: 1.4rem; font-weight: 850; }
 .signal-card dd { margin: 0; color: var(--muted); font-size: .72rem; }
@@ -150,6 +148,13 @@ img { max-width: 100%; height: auto; }
 .tag-cloud a { padding: 12px 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--text-soft); }
 .tag-cloud a:hover { color: var(--text); border-color: var(--accent); }
 .tag-cloud sup { color: var(--accent-strong); margin-left: 6px; }
+.tag-section { padding-top: 4px; }
+.subsection-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+.subsection-heading h2 { margin: 0; font-size: clamp(1.5rem, 3vw, 2.15rem); letter-spacing: -.04em; }
+.subsection-heading p { margin: 0; color: var(--muted); font-size: .82rem; }
+.tag-more { margin-top: 34px; border-top: 1px solid var(--line); padding-top: 20px; }
+.tag-more summary { width: fit-content; color: var(--accent-strong); cursor: pointer; font-weight: 750; }
+.tag-more[open] summary { margin-bottom: 20px; }
 
 .article-shell { padding: 75px 0 100px; }
 .article-header { max-width: 930px; margin: 0 auto 42px; text-align: center; }
@@ -236,7 +241,7 @@ img { max-width: 100%; height: auto; }
 .search-result p, .search-empty { color: var(--text-soft); font-size: .8rem; margin: 4px 0; }
 .has-dialog { overflow: hidden; }
 .not-found { min-height: 72vh; padding: 110px 0; display: flex; flex-direction: column; align-items: start; justify-content: center; }
-.not-found > strong { margin-top: 15px; font-size: clamp(3rem, 8vw, 7rem); line-height: .96; letter-spacing: -.07em; }
+.not-found > h1 { margin: 15px 0 0; font-size: clamp(3rem, 8vw, 7rem); line-height: .96; letter-spacing: -.07em; }
 .not-found > p { color: var(--text-soft); }
 
 @media (max-width: 980px) {
@@ -259,7 +264,7 @@ img { max-width: 100%; height: auto; }
   .hero-copy h1 { font-size: clamp(3rem, 17vw, 5rem); }
   .topic-grid, .post-grid, .taxonomy-grid { grid-template-columns: 1fr; }
   .post-card--featured { grid-column: auto; }
-  .section-heading { align-items: start; flex-direction: column; }
+  .section-heading, .subsection-heading { align-items: start; flex-direction: column; }
   .timeline article { grid-template-columns: 1fr; gap: 5px; }
   .article-shell { padding-top: 45px; }
   .article-header h1 { font-size: clamp(2.25rem, 12vw, 4rem); }

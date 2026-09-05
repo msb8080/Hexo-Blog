@@ -16,8 +16,6 @@ categories:
   - AI 后端学习
 ---
 
-> 系列导航：[01 原理](/blog/2026/09/04/agent-harness-series-01-overview/) · [02 选型](/blog/2026/09/04/agent-harness-series-02-selection/) · **03 Codex** · [04 Claude Code](/blog/2026/09/04/agent-harness-series-04-claude-code/) · [05 OpenCode](/blog/2026/09/04/agent-harness-series-05-opencode/) · [06 Java 自建](/blog/2026/09/04/agent-harness-series-06-java-spring-ai/) · [07 安全评测](/blog/2026/09/04/agent-harness-series-07-security-evaluation/)
-
 Codex 不只是聊天式补全。它的 Harness 把仓库理解、文件编辑、命令执行、审批、沙箱、任务状态和可扩展工具组织成一条执行链。当前能力和命令以 [Codex CLI 文档](https://developers.openai.com/codex/cli) 与 [CLI Reference](https://developers.openai.com/codex/cli/reference) 为准。
 
 ## 1. 安装与启动
