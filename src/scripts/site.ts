@@ -13,7 +13,18 @@ const menu = document.querySelector<HTMLElement>('[data-site-menu]');
 const searchLayer = document.querySelector<HTMLElement>('[data-search-layer]');
 const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
 const searchResults = document.querySelector<HTMLElement>('[data-search-results]');
+const themeToggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
 let searchDocuments: SearchDocument[] | null = null;
+let searchReturnFocus: HTMLElement | null = null;
+
+function syncThemeToggle() {
+  if (!themeToggle) return;
+  const isLight = root.dataset.theme === 'light';
+  themeToggle.setAttribute('aria-pressed', String(isLight));
+  themeToggle.setAttribute('aria-label', isLight ? '切换到深色主题' : '切换到浅色主题');
+}
+
+syncThemeToggle();
 
 function closeMenu() {
   navToggle?.setAttribute('aria-expanded', 'false');
@@ -27,16 +38,19 @@ navToggle?.addEventListener('click', () => {
 });
 menu?.addEventListener('click', closeMenu);
 
-document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
+themeToggle?.addEventListener('click', () => {
   const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
   root.dataset.theme = next;
   localStorage.setItem('ai-composer-theme', next);
+  syncThemeToggle();
 });
 
 function closeSearch() {
-  if (!searchLayer) return;
+  if (!searchLayer || searchLayer.hidden) return;
   searchLayer.hidden = true;
   document.body.classList.remove('has-dialog');
+  searchReturnFocus?.focus();
+  searchReturnFocus = null;
 }
 
 function renderSearchResults(matches: SearchDocument[]) {
@@ -64,8 +78,12 @@ function renderSearchResults(matches: SearchDocument[]) {
   });
 }
 
-async function openSearch() {
+async function openSearch(trigger?: HTMLElement | null) {
   if (!searchLayer || !searchInput) return;
+  const activeElement = document.activeElement instanceof HTMLElement && document.activeElement !== document.body
+    ? document.activeElement
+    : document.querySelector<HTMLElement>('[data-search-open]');
+  searchReturnFocus = trigger ?? activeElement;
   searchLayer.hidden = false;
   document.body.classList.add('has-dialog');
   searchInput.focus();
@@ -80,8 +98,24 @@ async function openSearch() {
   }
 }
 
-document.querySelectorAll('[data-search-open]').forEach((button) => button.addEventListener('click', openSearch));
+document.querySelectorAll<HTMLElement>('[data-search-open]').forEach((button) => button.addEventListener('click', () => void openSearch(button)));
 document.querySelectorAll('[data-search-close]').forEach((button) => button.addEventListener('click', closeSearch));
+
+searchLayer?.addEventListener('keydown', (event) => {
+  if (event.key !== 'Tab') return;
+  const focusable = [...searchLayer.querySelectorAll<HTMLElement>('button:not([disabled]):not([tabindex="-1"]), input:not([disabled]), a[href]')]
+    .filter((element) => element.offsetParent !== null);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable.at(-1)!;
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+});
 
 searchInput?.addEventListener('input', () => {
   if (!searchDocuments || !searchResults) return;

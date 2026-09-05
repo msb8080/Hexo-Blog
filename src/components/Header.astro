@@ -17,15 +17,15 @@ const links = [
       <span class="brand-mark">AI</span>
       <span class="brand-copy"><strong>{SITE.title}</strong><small>BUILD · VERIFY · SHARE</small></span>
     </a>
-    <nav class="site-menu" aria-label="主导航" data-site-menu>
+    <nav id="site-menu" class="site-menu" aria-label="主导航" data-site-menu>
       {links.map((link) => (
         <a class:list={{ active: link.href === '/' ? path === withBase('/') : path.startsWith(withBase(link.href)) }} href={withBase(link.href)}>{link.label}</a>
       ))}
     </nav>
     <div class="nav-actions">
       <button class="icon-button" type="button" aria-label="搜索" title="搜索（⌘/Ctrl K）" data-search-open>⌕</button>
-      <button class="icon-button" type="button" aria-label="切换明暗主题" title="切换主题" data-theme-toggle>◐</button>
-      <button class="icon-button menu-toggle" type="button" aria-label="展开导航" aria-expanded="false" data-nav-toggle>☰</button>
+      <button class="icon-button" type="button" aria-label="切换明暗主题" title="切换主题" aria-pressed="false" data-theme-toggle>◐</button>
+      <button class="icon-button menu-toggle" type="button" aria-label="展开导航" aria-controls="site-menu" aria-expanded="false" data-nav-toggle>☰</button>
     </div>
   </div>
 </header>

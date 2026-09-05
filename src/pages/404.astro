@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { withBase } from '../lib/site';
 ---
 
-<BaseLayout title="页面未找到" description="请求的页面不存在。">
+<BaseLayout title="页面未找到" description="请求的页面不存在。" canonicalPath="/404.html" noindex>
   <section class="not-found shell">
     <span class="eyebrow">HTTP 404</span>
     <strong>信号中断。</strong>

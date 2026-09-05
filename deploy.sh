@@ -42,4 +42,6 @@ git -C "$site_dir" commit -m "deploy: update blog $(date '+%Y-%m-%d %H:%M')"
 git -C "$site_dir" pull --rebase origin master
 git -C "$site_dir" push origin master
 
+npm run smoke -- https://msb8080.github.io/blog/
+
 echo "Published: https://msb8080.github.io/blog/"

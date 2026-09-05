@@ -10,7 +10,7 @@ const { post, featured = false } = Astro.props as Props;
   <div class="post-card__meta">
     <time datetime={sourceDateIso(post.data.date)}>{formatDate(post.data.date)}</time>
     <span>{readingMinutes(post.body)} 分钟</span>
-    {post.data.series && <span>系列 {post.data.series_order}</span>}
+    {post.data.series && <a class="post-card__series" href={withBase(`/series/${taxonomySlug(post.data.series)}/`)}>系列 {post.data.series_order}</a>}
   </div>
   <h2><a href={withBase(postPath(post))}>{post.data.title}</a></h2>
   <p>{post.data.description}</p>

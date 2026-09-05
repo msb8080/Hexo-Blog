@@ -1,7 +1,8 @@
 ---
 title: "2026 前沿大模型发布雷达：官方资讯、API 文档与退役公告入口"
 date: 2026-09-04 22:40:00
-updated: 2026-09-04 22:40:00
+updated: 2026-09-05 09:00:00
+last_verified: 2026-09-05 09:00:00
 description: "持续维护的前沿模型发布索引，覆盖 OpenAI、Anthropic、Google、DeepSeek、Qwen、xAI、Mistral、Kimi、MiniMax 与 GLM 的官方发布、模型目录、API 文档和退役公告。"
 cover: "/img/default.png"
 tags:
