@@ -7,6 +7,9 @@ export default defineConfig({
   publicDir: './static',
   output: 'static',
   trailingSlash: 'always',
+  build: {
+    assets: 'assets'
+  },
   integrations: [sitemap()],
   markdown: {
     shikiConfig: {
