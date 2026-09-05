@@ -29,21 +29,36 @@ const topics = [
         <a class="button button-secondary" href={withBase('/series/agent-harness/')}>开始 Harness 系列</a>
       </div>
     </div>
-    <aside class="signal-card">
-      <img
-        class="signal-card__image"
-        src={withBase('/assets/og-default.jpg')}
-        width="1200"
-        height="630"
-        alt="AI Composer 技术猿：理解模型，驾驭 Agent"
-        decoding="async"
-      />
-      <div class="signal-card__top"><span>KNOWLEDGE SIGNAL</span><span>{String(posts.length).padStart(2, '0')} NOTES</span></div>
-      <dl>
-        <div><dt>{tagCount}</dt><dd>主题标签</dd></div>
-        <div><dt>{seriesCount}</dt><dd>专题系列</dd></div>
-        <div><dt>∞</dt><dd>持续更新</dd></div>
-      </dl>
+    <aside class="signal-stage" aria-label="内容雷达" data-signal-stage>
+      <a class="signal-teaser signal-teaser--models" href={withBase('/tags/模型发布/')}>
+        <span>MODEL RADAR</span>
+        <strong>10 个模型源</strong>
+        <small>官方发布 · API · 退役公告</small>
+        <b aria-hidden="true">↗</b>
+      </a>
+      <a class="signal-teaser signal-teaser--harness" href={withBase('/series/agent-harness/')}>
+        <span>HARNESS PLAYBOOK</span>
+        <strong>7 篇专题</strong>
+        <small>工具 · 权限 · 上下文 · 评测</small>
+        <b aria-hidden="true">↗</b>
+      </a>
+      <div class="signal-card">
+        <img
+          class="signal-card__image"
+          src={withBase('/assets/og-default.jpg')}
+          width="1200"
+          height="630"
+          alt="AI Composer 技术猿：理解模型，驾驭 Agent"
+          decoding="async"
+        />
+        <div class="signal-card__top"><span>KNOWLEDGE SIGNAL</span><span>{String(posts.length).padStart(2, '0')} NOTES</span></div>
+        <dl>
+          <div><dt>{tagCount}</dt><dd>主题标签</dd></div>
+          <div><dt>{seriesCount}</dt><dd>专题系列</dd></div>
+          <div><dt>∞</dt><dd>持续更新</dd></div>
+        </dl>
+      </div>
+      <span class="signal-stage__hint" aria-hidden="true">MOVE TO EXPLORE</span>
     </aside>
   </section>
 

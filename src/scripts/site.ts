@@ -178,3 +178,23 @@ document.querySelectorAll<HTMLPreElement>('.article-content pre').forEach((pre) 
   });
   pre.append(button);
 });
+
+const signalStage = document.querySelector<HTMLElement>('[data-signal-stage]');
+const canTilt = matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+if (signalStage && canTilt.matches) {
+  signalStage.addEventListener('pointermove', (event) => {
+    const bounds = signalStage.getBoundingClientRect();
+    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+    signalStage.style.setProperty('--tilt-x', `${(-y * 7).toFixed(2)}deg`);
+    signalStage.style.setProperty('--tilt-y', `${(x * 9).toFixed(2)}deg`);
+    signalStage.style.setProperty('--tilt-x-soft', `${(-y * 3).toFixed(2)}deg`);
+    signalStage.style.setProperty('--tilt-y-soft', `${(x * 4).toFixed(2)}deg`);
+  }, { passive: true });
+  signalStage.addEventListener('pointerleave', () => {
+    signalStage.style.setProperty('--tilt-x', '0deg');
+    signalStage.style.setProperty('--tilt-y', '0deg');
+    signalStage.style.setProperty('--tilt-x-soft', '0deg');
+    signalStage.style.setProperty('--tilt-y-soft', '0deg');
+  });
+}
